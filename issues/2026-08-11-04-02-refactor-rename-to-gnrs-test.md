@@ -4,7 +4,11 @@
 - Created: 2026-08-11 04:02 JST
 - Model: Opus 5 (1M context)
 - Branch: `feature/breaking-change-rename-to-gnrs-test`
-- Status: **実装完了・検証済み** (2026-08-11 04:15)。 残件は GitHub 改名 (ユーザー作業) / `git remote set-url` / 主要下流 repo の選定と追従 issue 起票 の 3 件
+- Status: **実装完了・検証済み**。 改名の実装は PR #39 (merge commit `daebcbb`) で main へ着地。
+  GitHub 改名と `git remote set-url` は 2026-08-11 05:4x に完了。 **残件は主要下流 repo の
+  追従のみ**。 本 issue を main へ載せる PR は **#40** (open のまま。 下流追従の完了後に
+  本 issue を `issues/completed/` へ移す commit を積んで merge する。 merge には
+  **`!run ci` が必要** — 下記の ci-publish の項参照)
 - 起票経緯: ユーザー指示。 ginokent の自作 crate 群が `gnrs-*` prefix へ順次改名
   されており (`logrs` → `gnrs-log` / `httprs` → `gnrs-http` / `cryptors` →
   `gnrs-crypto` / `audiors` → `gnrs-audio` / `asyncrs` → `gnrs-async` /
