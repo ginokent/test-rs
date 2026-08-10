@@ -173,9 +173,18 @@
       `test result: ok`。 **これが段 3 (`__GnrsTestPbtT`) と段 4 の順序が正しかった
       ことの実証** — 取りこぼしていれば derive を使う test がコンパイルエラーになる。
       改名で `use` の並び順・行幅が変わった 51 ファイルは `cargo fmt --all` で再整形
-- [ ] GitHub リポジトリ名を `gnrs-test` へ変更する (**ユーザーが GitHub UI で実施**)
-- [ ] `git remote set-url` を新 URL へ更新し `git ls-remote` で疎通確認する
+- [x] GitHub リポジトリ名を `gnrs-test` へ変更する (**ユーザーが GitHub UI で実施**)
+      — `gh repo view ginokent/gnrs-test` が
+      `{"nameWithOwner":"ginokent/gnrs-test","visibility":"PUBLIC"}` を返す。
+      **本 repo は PUBLIC** (他の gnrs-* 系は PRIVATE) なので、 下流は匿名 https で
+      fetch でき PAT なしでも解決できる
+- [x] `git remote set-url` を新 URL へ更新し `git ls-remote` で疎通確認する
+      — `origin` を `ssh://git@github.com/ginokent/gnrs-test.git` に更新し、
+      `git ls-remote origin` が exit 0 で `HEAD = daebcbb` を返すことを確認。
+      `Cargo.toml:15` が宣言する URL の 404 も解消
 - [ ] 主要下流 repo の選定をユーザーと相談し、 対象 repo に追従 issue を起票する
+      — **進行中**。 ユーザー判断で中核 6 repo を対象としたが、 `gnrs-async` は別作業が
+      進行中のため除外して 5 repo とした。 進捗は下記「### 下流追従の進捗」
 
 ## 調査ログ
 
@@ -236,10 +245,60 @@ MSRV 1.82 を壊していないことは別途実測済み** — ローカルで
 言語機能を追加していないため MSRV への影響は無い (是正 issue 側で 1.82 実行を
 確認する)
 
+### 下流追従の進捗
+
+GitHub 改名 (2026-08-11 05:4x) の直後に、 **下流が実際に壊れることを実測して確定**した。
+`gnrs-time` で:
+
+```
+$ cargo update -p testrs-pbt
+From https://github.com/ginokent/testrs
+   37986fa..daebcbb  main       -> origin/main
+error: no matching package named `testrs-pbt` found
+required by package `gnrs-time-core v0.1.0
+```
+
+旧 URL リダイレクトは効く (fetch は成功し改名後の HEAD を取得する) が **package 名が
+解決できない**。 `Cargo.lock` が untracked な repo は CI がクリーンな状態から解決する
+ため、 **15 repo すべてがこの時点で CI 赤**である。
+
+ユーザー判断で追従対象は **中核 6 repo** としたが、 `gnrs-async` (旧 asyncrs) は
+`feature/update-strip-nativers-windows` で別作業が進行中かつ worktree が dirty
+だったため **除外**した (`gnrs-ml` で「ブランチを切るだけで他セッションの commit 先を
+奪う」事故を起こした教訓に基づく)。
+
+| repo | 出現 / ファイル | 状態 |
+|---|---|---|
+| `gnrs-example` (旧 examplers) | 40 / 13 | **完了** — issue `2026-08-11-04-47` / PR #66 / merge `78c4d1a` |
+| `gnrs-log` | 44 / 16 | **完了** — issue `2026-08-11-05-58` / PR #24 / merge `7538515` |
+| `gnrs-time` (旧 timers) | 53 / 23 | 未着手 |
+| `gnrs-http` (旧 httprs) | 193 / 54 | 未着手 |
+| `gnrs-crypto` (旧 cryptors) | 245 / 85 | 未着手 |
+| `gnrs-async` (旧 asyncrs) | 117 / 47 | **除外** (別作業が進行中。 指示文で引き継ぐ) |
+| 残り 9 repo | — | 指示文で引き継ぐ (`quicrs` / `gnrs-gui` / `imagers` / `josers` / `oauthrs` / `cachers` / `gnrs-audio` / `nativers` / `gnrs-ml`) |
+
+下流追従で得られた知見:
+
+- **`deny.toml` の `allow-git` 更新が必須**。 未更新だと `deny` leg が unlisted source
+  として fail する。 `gnrs-example` では `Cargo.toml` の宣言が `.git` 付き
+  (`ginokent/testrs.git`) で `allow-git` は `.git` なしという非対称があったが、
+  cargo-deny 側が正規化しているため `ginokent/testrs` パターンで両方同時に更新できた
+- **`gnrs-test-pbt-derive` が推移依存として下流の lock に現れる**。 `gnrs-log` の
+  `cargo metadata` が `gnrs-test-core` / `gnrs-test-pbt` / `gnrs-test-pbt-derive` の
+  3 package を解決したことは、 **本 repo で独立段として処理した `__TestrsPbtT` →
+  `__GnrsTestPbtT` を含む proc-macro crate が下流から見ても正しく効いている** ことの
+  確認になっている
+- **`.github/` の git 認証設定にも旧 repo 名が入っている** (`gnrs-log` の
+  `.github/actions/git-auth/action.yml` / `.github/workflows/README.md`)。 これは
+  ドキュメント / input の説明文なので置換で足り、 **Fine-grained PAT 側の権限は
+  GitHub の改名追従で維持される**ため secret の再発行は不要
+
 ## 非スコープ
 
 - **facade crate `gnrs-test` の新設**: ユーザー判断。 元から facade が無く、 新設は
   改名とは別の設計変更になるため行わない
+- **`gnrs-async` の追従**: 別作業が進行中のため本 session では触らない。 上記の
+  「下流追従の進捗」に必要な作業を記録し、 指示文で引き継ぐ
 - **下流 15 repo すべての追従実装**: ユーザー判断で主要 repo のみ。 残りは指示文
 - **ローカル作業ディレクトリ `~/go/src/github.com/ginokent/testrs` の改名**:
   リポジトリの成果物ではなく各開発環境の都合なので完了条件外
