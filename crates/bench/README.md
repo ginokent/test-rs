@@ -1,16 +1,16 @@
-# testrs-bench
+# gnrs-test-bench
 
 依存ゼロ (std のみ) のマイクロベンチマークハーネス。クロージャの実行時間を
 ウォームアップ込みで計測し、複数サンプルから記述統計を求め、外れ値を除去
 したうえで人間可読のレポートを出力する。
 
-> ワークスペース **testrs** を構成する一 crate。リポジトリ全体の俯瞰
+> ワークスペース **gnrs-test** を構成する一 crate。リポジトリ全体の俯瞰
 > (カテゴリ分離、crate 構成) は [リポジトリトップの README](../../README.md)
-> を参照。プロパティベーステストは [`testrs-pbt`](../pbt/README.md)、
-> fuzzing は [`testrs-fuzz`](../fuzz/README.md) を使う。
+> を参照。プロパティベーステストは [`gnrs-test-pbt`](../pbt/README.md)、
+> fuzzing は [`gnrs-test-fuzz`](../fuzz/README.md) を使う。
 >
-> **benchmarking は PBT / fuzzing とは別カテゴリ**であり、`testrs-bench` は
-> 計測に Rng/Arbitrary を必要としないため **`testrs-core` にも依存せず
+> **benchmarking は PBT / fuzzing とは別カテゴリ**であり、`gnrs-test-bench` は
+> 計測に Rng/Arbitrary を必要としないため **`gnrs-test-core` にも依存せず
 > std のみで完結する独立 crate** である。
 
 ## 位置づけと限界
@@ -23,13 +23,13 @@ OS スケジューリングや CPU 周波数変動に対するノイズ補正は
 
 ```toml
 [dev-dependencies]
-testrs-bench = { git = "https://github.com/ginokent/testrs", package = "testrs-bench" }
+gnrs-test-bench = { git = "https://github.com/ginokent/gnrs-test", package = "gnrs-test-bench" }
 ```
 
 ## クイックスタート
 
 ```rust
-use testrs_bench::{bench, bench_compare};
+use gnrs_test_bench::{bench, bench_compare};
 
 // 単発の計測。結果を標準エラー出力へ表示しつつ BenchResult を返す。
 let result = bench("vec push 0..1000", || {
@@ -64,28 +64,28 @@ bench: vec push 0..1000
 
 | 機能                                   | 場所                                        |
 |----------------------------------------|---------------------------------------------|
-| 単発計測 (出力あり)                    | `testrs_bench::{bench, bench_with}`         |
-| 単発計測 (出力なし)                    | `testrs_bench::{measure, measure_with}`     |
-| データスループット計測 (bytes/s 込み)  | `testrs_bench::{bench_throughput, bench_throughput_with}` |
-| 相対比較                               | `testrs_bench::{bench_compare, bench_compare_with}` |
-| sweep (パラメタ化ベンチ)               | `testrs_bench::{sweep, sweep_with}`         |
-| 実行設定                               | `testrs_bench::BenchConfig`                 |
-| 外れ値除去方式                         | `testrs_bench::OutlierFilter` (`None` / `Tukey` / `Mad`) |
-| 結果 (生サンプル + 全統計)             | `testrs_bench::BenchResult`                 |
-| 記述統計                               | `testrs_bench::Statistics`                  |
+| 単発計測 (出力あり)                    | `gnrs_test_bench::{bench, bench_with}`         |
+| 単発計測 (出力なし)                    | `gnrs_test_bench::{measure, measure_with}`     |
+| データスループット計測 (bytes/s 込み)  | `gnrs_test_bench::{bench_throughput, bench_throughput_with}` |
+| 相対比較                               | `gnrs_test_bench::{bench_compare, bench_compare_with}` |
+| sweep (パラメタ化ベンチ)               | `gnrs_test_bench::{sweep, sweep_with}`         |
+| 実行設定                               | `gnrs_test_bench::BenchConfig`                 |
+| 外れ値除去方式                         | `gnrs_test_bench::OutlierFilter` (`None` / `Tukey` / `Mad`) |
+| 結果 (生サンプル + 全統計)             | `gnrs_test_bench::BenchResult`                 |
+| 記述統計                               | `gnrs_test_bench::Statistics`                  |
 | スループット (ops/s)                   | `BenchResult::throughput()`                 |
 | データスループット (bytes/s)           | `BenchResult::{with_bytes_per_iter, throughput_bytes}` |
 | 比較比率                               | `BenchComparison::ratio()`                  |
-| 出力整形 (結果構造から分離)            | `testrs_bench::{format_result, format_comparison, format_sweep}` |
+| 出力整形 (結果構造から分離)            | `gnrs_test_bench::{format_result, format_comparison, format_sweep}` |
 | 機械可読出力 (依存ゼロ手書き)          | `BenchResult::{to_json, to_csv_record}` / `BenchResult::csv_header()` |
-| 統計関数 (mean/median/std_dev/MAD/percentile) | `testrs_bench::stats::*`             |
+| 統計関数 (mean/median/std_dev/MAD/percentile) | `gnrs_test_bench::stats::*`             |
 
 ## パターン集
 
 ### 1. 単発の計測
 
 ```rust
-use testrs_bench::bench;
+use gnrs_test_bench::bench;
 
 bench("parse 1KB json", || {
     let input = include_str!("../fixtures/sample.json");
@@ -102,7 +102,7 @@ bench("parse 1KB json", || {
 
 ```rust
 use std::hint::black_box;
-use testrs_bench::bench_compare;
+use gnrs_test_bench::bench_compare;
 
 let data: Vec<i32> = (0..10_000).rev().collect();
 let comparison = bench_compare(
@@ -119,7 +119,7 @@ println!("ratio (b/a) = {:.2}", comparison.ratio());
 
 ```rust
 use std::time::Duration;
-use testrs_bench::{bench_with, BenchConfig, OutlierFilter};
+use gnrs_test_bench::{bench_with, BenchConfig, OutlierFilter};
 
 let cfg = BenchConfig {
     warmup_time: Duration::from_millis(200),
@@ -151,7 +151,7 @@ bench_with("hot path", &cfg, || my_lib::hot_path());
 ### 5. 出力せずに結果だけ取得する
 
 ```rust
-use testrs_bench::measure;
+use gnrs_test_bench::measure;
 
 // measure / measure_with は何も出力せず BenchResult を返す。
 // 自前の整形・集計・永続化を行いたいときに使う。
@@ -163,7 +163,7 @@ std::fs::write("bench.csv", row).unwrap();
 ### 6. 出力を自前で整形する
 
 ```rust
-use testrs_bench::{measure, format_result};
+use gnrs_test_bench::{measure, format_result};
 
 let r = measure("decode", || my_codec::decode(&bytes));
 // デフォルト整形を使う。
@@ -179,7 +179,7 @@ codec / 圧縮 / シリアライズ / IO 系では bytes/s が主指標になる
 
 ```rust
 use std::hint::black_box;
-use testrs_bench::bench_throughput;
+use gnrs_test_bench::bench_throughput;
 
 let input = vec![0u8; 64 * 1024];
 let r = bench_throughput("decode 64KiB", input.len() as u64, || {
@@ -200,7 +200,7 @@ println!("{:?} bytes/s", r.throughput_bytes());
 
 ```rust
 use std::hint::black_box;
-use testrs_bench::{sweep, format_sweep, BenchResult};
+use gnrs_test_bench::{sweep, format_sweep, BenchResult};
 
 let sizes = [1024usize, 4096, 16384];
 let results: Vec<BenchResult> = sweep("decode", &sizes, |&n| {
@@ -225,7 +225,7 @@ eprintln!("{}", format_sweep(&results));
 依存ゼロの手書き出力。表集計や外部ツール連携に使う。
 
 ```rust
-use testrs_bench::{measure, BenchResult};
+use gnrs_test_bench::{measure, BenchResult};
 
 let results = [measure("a", || work_a()), measure("b", || work_b())];
 
@@ -275,7 +275,7 @@ for r in &results {
   特化している。
 - 計測は本質的に非決定的で、ノイズ補正は最小限。同一コードでも実行ごとに
   数値はぶれる。
-- `testrs-core` を含む他の testrs crate には依存しない。固定パラメータの
+- `gnrs-test-core` を含む他の gnrs-test crate には依存しない。固定パラメータの
   sweep は持つが、入力を **型情報から生成** する (`Strategy` 連携) ベンチは
   現状サポートしない（将来 core 依存を足して対応しうる）。
 - `panic = "abort"` プロファイルでは、ベンチ対象が panic するとプロセスごと
@@ -291,17 +291,17 @@ for r in &results {
 - **統計的有意差判定** — `BenchResult::samples` に生サンプル列を残してあり、
   Mann–Whitney U などの検定を後付けできる。
 - **`Strategy` 連携の sweep** — 現状の sweep は固定パラメータ列のみ。型情報
-  から入力を生成する版は、`testrs-core` への依存を足して対応しうる。
+  から入力を生成する版は、`gnrs-test-core` への依存を足して対応しうる。
 
 ## テストスイートの実行
 
 ```
-cargo test -p testrs-bench
-cargo run --release --example compare_sorts -p testrs-bench
-cargo run --release --example throughput_sweep -p testrs-bench
+cargo test -p gnrs-test-bench
+cargo run --release --example compare_sorts -p gnrs-test-bench
+cargo run --release --example throughput_sweep -p gnrs-test-bench
 ```
 
-統計関数の数学的性質は `tests/stats_pbt.rs` で `testrs-pbt` を用いた PBT で
+統計関数の数学的性質は `tests/stats_pbt.rs` で `gnrs-test-pbt` を用いた PBT で
 検証している（時間依存の計測本体は非決定的なため、構造的な不変条件のみを
 単体テストで確認する）。
 

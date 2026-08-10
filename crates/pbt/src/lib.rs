@@ -5,7 +5,7 @@
 //! 生成された多数の入力に対してプロパティを表明できます。
 //!
 //! ```
-//! use testrs_pbt::{run, prop_assert_eq};
+//! use gnrs_test_pbt::{run, prop_assert_eq};
 //!
 //! run("addition is commutative", |&(a, b): &(i32, i32)| {
 //!     prop_assert_eq!(a.wrapping_add(b), b.wrapping_add(a));
@@ -25,16 +25,16 @@
 //! 具体的には `bool`、`()`、`Result<(), E>`、または [`PropResult`] その
 //! ものです。これによりプロパティ本体の中で `?` 演算子を使えます。
 //!
-//! 失敗時の出力には実行で使用した seed が含まれているため、`TESTRS_PBT_SEED`
+//! 失敗時の出力には実行で使用した seed が含まれているため、`GNRS_TEST_PBT_SEED`
 //! 環境変数を設定することで決定的に再現できます。失敗した seed は
-//! `target/testrs-pbt-regressions/<name>.txt` にも永続化され、以降の実行
+//! `target/gnrs-test-pbt-regressions/<name>.txt` にも永続化され、以降の実行
 //! 時に再生されます。
 
 use std::any::Any;
 use std::env;
 use std::panic::{self, AssertUnwindSafe};
 
-pub use testrs_core::{Arbitrary, Rng, Strategy, StrategyExt, XorShift64};
+pub use gnrs_test_core::{Arbitrary, Rng, Strategy, StrategyExt, XorShift64};
 
 mod assert;
 mod async_exec;
@@ -52,21 +52,18 @@ pub use differential::{differential, differential_with};
 pub use assert::{__current_context, __panic_payload_str, __pop_context, __push_context};
 pub use assert::{PropAssertFailure, PropDiscard, PropSkip};
 pub use classify::Classifications;
-pub use testrs_core::strategy;
-// `Arbitrary` を trait（testrs-core から、型の名前空間）および
-// derive マクロ（testrs-pbt-derive から、マクロの名前空間）の両方として公開します。
-pub use testrs_pbt_derive::pbt;
+pub use gnrs_test_core::strategy;
+// `Arbitrary` を trait（gnrs-test-core から、型の名前空間）および
+// derive マクロ（gnrs-test-pbt-derive から、マクロの名前空間）の両方として公開します。
+pub use gnrs_test_pbt_derive::pbt;
 
-#[doc(hidden)]
-pub use strategy_runner::__ComposedStrategy;
-pub use strategy_runner::{forall_strategy, forall_strategy_with, run_strategy, run_strategy_with};
 /// `#[derive(Arbitrary)]` は各フィールド型が [`Arbitrary`] を実装していることを
 /// 要求します。未実装の型をフィールドに持つ場合はコンパイルエラーとなり、診断は
 /// 当該フィールドの型を指し示します（`#[arbitrary(strategy = ...)]` 付きフィールド
 /// は strategy が値を供給するため除外されます）。
 ///
 /// ```compile_fail
-/// use testrs_pbt::Arbitrary;
+/// use gnrs_test_pbt::Arbitrary;
 ///
 /// // `Arbitrary` 未実装の型。
 /// struct NotArbitrary;
@@ -76,7 +73,10 @@ pub use strategy_runner::{forall_strategy, forall_strategy_with, run_strategy, r
 ///     value: NotArbitrary,
 /// }
 /// ```
-pub use testrs_pbt_derive::Arbitrary;
+pub use gnrs_test_pbt_derive::Arbitrary;
+#[doc(hidden)]
+pub use strategy_runner::__ComposedStrategy;
+pub use strategy_runner::{forall_strategy, forall_strategy_with, run_strategy, run_strategy_with};
 
 use panic_hook::SilentPanicHook;
 
@@ -144,7 +144,7 @@ impl<E: std::fmt::Debug> IntoPropResult for Result<(), E> {
 pub struct Config {
     /// 実行する*合格*ケースの目標数です。
     pub cases: usize,
-    /// PRNG seed です。デフォルトは `TESTRS_PBT_SEED` 環境変数、または
+    /// PRNG seed です。デフォルトは `GNRS_TEST_PBT_SEED` 環境変数、または
     /// 壁時計のエントロピーです。
     pub seed: u64,
     /// 失敗ケースに対して適用される shrink ステップの最大数です。
@@ -163,7 +163,7 @@ pub struct Config {
     /// 並行するランナーは単一のフックインストールを共有します。
     pub silence_panic_hook: bool,
     /// `true` の場合、[`run`] / [`run_with`] は失敗 seed を
-    /// `target/testrs-pbt-regressions/<name>.txt` に永続化し、以降の実行
+    /// `target/gnrs-test-pbt-regressions/<name>.txt` に永続化し、以降の実行
     /// の最初に再生します。
     pub regression_replay: bool,
     /// 縮小戦略です。デフォルトは [`ShrinkMode::Greedy`] で、各ステップで
@@ -203,7 +203,7 @@ impl Default for Config {
 }
 
 fn env_seed() -> u64 {
-    if let Ok(s) = env::var("TESTRS_PBT_SEED") {
+    if let Ok(s) = env::var("GNRS_TEST_PBT_SEED") {
         if let Ok(n) = s.parse::<u64>() {
             return n;
         }
@@ -459,7 +459,7 @@ where
             if skipped > 0 {
                 extra.push_str(&format!(", {skipped} skipped"));
             }
-            eprintln!("[testrs-pbt] {name}: ok ({cases} cases{extra}, seed={seed})");
+            eprintln!("[gnrs-test-pbt] {name}: ok ({cases} cases{extra}, seed={seed})");
             if !classifications.is_empty() {
                 eprint!("  classifications:\n{}", classifications.render());
             }
@@ -480,7 +480,7 @@ where
                 format!("\n  classifications:\n{}", classifications.render())
             };
             panic!(
-                "[testrs-pbt] {name} FAILED at case #{attempt} (TESTRS_PBT_SEED={seed}, {discarded} discarded, {skipped} skipped)\n  \
+                "[gnrs-test-pbt] {name} FAILED at case #{attempt} (GNRS_TEST_PBT_SEED={seed}, {discarded} discarded, {skipped} skipped)\n  \
                  reason:   {message}\n  \
                  original: {original:?}\n  \
                  shrunk:   {shrunk:?}{class_part}",
@@ -500,7 +500,7 @@ where
                 format!("\n  classifications:\n{}", classifications.render())
             };
             panic!(
-                "[testrs-pbt] {name} ABORTED (seed={seed})\n  \
+                "[gnrs-test-pbt] {name} ABORTED (seed={seed})\n  \
                  reason: {reason}\n  \
                  cases ran: {cases}, discarded: {discarded}, skipped: {skipped}{class_part}",
             );

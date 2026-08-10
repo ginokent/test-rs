@@ -1,7 +1,7 @@
 //! ステートマシンフレームワークのテストです。
 
-use testrs_pbt::state_machine::{run_state_machine, StateMachine};
-use testrs_pbt::{Arbitrary, Config};
+use gnrs_test_pbt::state_machine::{run_state_machine, StateMachine};
+use gnrs_test_pbt::{Arbitrary, Config};
 
 #[derive(Arbitrary, Debug, Clone)]
 enum VecOp {

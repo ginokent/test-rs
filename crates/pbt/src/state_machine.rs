@@ -15,10 +15,10 @@
 //! # 例
 //!
 //! ```
-//! use testrs_pbt::state_machine::{run_state_machine, StateMachine};
-//! use testrs_pbt::Config;
+//! use gnrs_test_pbt::state_machine::{run_state_machine, StateMachine};
+//! use gnrs_test_pbt::Config;
 //!
-//! #[derive(testrs_pbt::Arbitrary, Debug, Clone)]
+//! #[derive(gnrs_test_pbt::Arbitrary, Debug, Clone)]
 //! enum VecOp {
 //!     Push(i32),
 //!     Pop,
@@ -50,7 +50,7 @@
 use std::fmt::Debug;
 use std::panic::{self, AssertUnwindSafe};
 
-use testrs_core::{Arbitrary, XorShift64};
+use gnrs_test_core::{Arbitrary, XorShift64};
 
 use crate::panic_hook::SilentPanicHook;
 use crate::regression;
@@ -118,7 +118,7 @@ pub fn run_state_machine<M: StateMachine + 'static>(name: &str, cfg: Config) {
                 extra.push_str(&format!(", {skipped} skipped"));
             }
             eprintln!(
-                "[testrs-pbt] {name}: ok ({cases} sequences{extra}, seed={seed})"
+                "[gnrs-test-pbt] {name}: ok ({cases} sequences{extra}, seed={seed})"
             );
             if !classifications.is_empty() {
                 eprint!("  classifications:\n{}", classifications.render());
@@ -134,7 +134,7 @@ pub fn run_state_machine<M: StateMachine + 'static>(name: &str, cfg: Config) {
             skipped,
             ..
         } => panic!(
-            "[testrs-pbt] {name} FAILED at sequence #{attempt} (TESTRS_PBT_SEED={seed}, {discarded} discarded, {skipped} skipped)\n  \
+            "[gnrs-test-pbt] {name} FAILED at sequence #{attempt} (GNRS_TEST_PBT_SEED={seed}, {discarded} discarded, {skipped} skipped)\n  \
              reason:   {message}\n  \
              original: {original:?} ({} ops)\n  \
              shrunk:   {shrunk:?} ({} ops)",
@@ -147,7 +147,7 @@ pub fn run_state_machine<M: StateMachine + 'static>(name: &str, cfg: Config) {
             seed,
             ..
         } => panic!(
-            "[testrs-pbt] {name} ABORTED (seed={seed})\n  reason: {reason}\n  sequences ran: {cases}"
+            "[gnrs-test-pbt] {name} ABORTED (seed={seed})\n  reason: {reason}\n  sequences ran: {cases}"
         ),
     }
 }
@@ -207,7 +207,7 @@ fn run_sm_loop<M: StateMachine + 'static>(
 fn generate_sequence<M, R>(rng: &mut R, max_len: usize) -> Vec<M::Operation>
 where
     M: StateMachine,
-    R: testrs_core::Rng + ?Sized,
+    R: gnrs_test_core::Rng + ?Sized,
 {
     let len = rng.gen_range_usize(1, max_len.max(2));
     (0..len)

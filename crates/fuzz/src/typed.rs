@@ -6,7 +6,7 @@
 //! することで、任意の `Arbitrary` 型に対して mutation 駆動のカバレッジ
 //! を提供します。
 
-use testrs_core::{Arbitrary, XorShift64};
+use gnrs_test_core::{Arbitrary, XorShift64};
 
 use crate::{fuzz, FuzzConfig, FuzzReport};
 
@@ -35,7 +35,7 @@ impl Default for TypedFuzzConfig {
 /// 値を構築します。
 ///
 /// ```no_run
-/// use testrs_fuzz::{fuzz_typed, TypedFuzzConfig};
+/// use gnrs_test_fuzz::{fuzz_typed, TypedFuzzConfig};
 ///
 /// fuzz_typed::<String, _>(TypedFuzzConfig::default(), |s: &String| {
 ///     // a planted bug: panic on a specific substring

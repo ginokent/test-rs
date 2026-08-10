@@ -16,7 +16,7 @@
 //! # 例
 //!
 //! ```no_run
-//! use testrs_bench::{bench, bench_compare};
+//! use gnrs_test_bench::{bench, bench_compare};
 //!
 //! // 単発の計測。
 //! let result = bench("vec push 1k", || {

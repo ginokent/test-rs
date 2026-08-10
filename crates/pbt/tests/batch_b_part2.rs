@@ -1,7 +1,7 @@
 //! Batch 6で追加された機能のテスト: 差分テストヘルパーと
 //! `ShrinkMode::Exhaustive`です。
 
-use testrs_pbt::{differential_with, forall_with, Config, ShrinkMode};
+use gnrs_test_pbt::{differential_with, forall_with, Config, ShrinkMode};
 
 fn no_replay_cfg(seed: u64) -> Config {
     Config {

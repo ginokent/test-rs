@@ -1,4 +1,4 @@
-//! testrs-pbt 向けに手書きされた proc-macro 群です。
+//! gnrs-test-pbt 向けに手書きされた proc-macro 群です。
 //!
 //! このクレートはコンパイラ提供の `proc_macro` クレートのみに依存しており、`syn`
 //! や `quote` といった外部依存は持ちません。parser ーは小さく、実際に受け入れる
@@ -22,7 +22,7 @@
 //! `Arbitrary` 実装を手書きしてください。
 //!
 //! ### `#[pbt]`
-//! 自由関数を `testrs_pbt::run` で駆動される `#[test]` としてラップします。
+//! 自由関数を `gnrs_test_pbt::run` で駆動される `#[test]` としてラップします。
 //! 各パラメータの型は `Arbitrary` を実装している必要があります。関数本体は
 //! 生成されたケースごとに実行され、内部では `prop_assert!`、`prop_assert_eq!`、
 //! `prop_assume!` がすべて利用できます。
@@ -35,12 +35,12 @@ use proc_macro::{Delimiter, Group, Ident, Punct, Spacing, Span, TokenStream, Tok
 // #[derive(Arbitrary)]
 // ---------------------------------------------------------------------------
 
-/// struct または enum に対して [`testrs_pbt::Arbitrary`](https://docs.rs/testrs-pbt)
+/// struct または enum に対して [`gnrs_test_pbt::Arbitrary`](https://docs.rs/gnrs-test-pbt)
 /// を導出します。
 ///
 /// オプションのフィールド単位の属性として、
 /// `#[arbitrary(strategy = <expr>)]` を指定できます。これにより、フィールド型の
-/// デフォルトの `Arbitrary` 実装の代わりに、指定した `testrs_pbt::Strategy` を
+/// デフォルトの `Arbitrary` 実装の代わりに、指定した `gnrs_test_pbt::Strategy` を
 /// 用いてそのフィールドを生成します。式は Rust の式そのもの、または式を含む
 /// 文字列リテラル（proptest 風）のいずれかを指定できます。
 #[proc_macro_derive(Arbitrary, attributes(arbitrary))]
@@ -551,9 +551,9 @@ fn parse_tuple_fields(stream: TokenStream) -> Result<Vec<FieldInfo>, String> {
 fn gen_field_value(strategy: &Option<String>) -> String {
     match strategy {
         Some(expr) => format!(
-            "{{ let __strat = ({expr}); ::testrs_pbt::Strategy::new_value(&__strat, rng, size) }}"
+            "{{ let __strat = ({expr}); ::gnrs_test_pbt::Strategy::new_value(&__strat, rng, size) }}"
         ),
-        None => "<_ as ::testrs_pbt::Arbitrary>::arbitrary(rng, size)".to_string(),
+        None => "<_ as ::gnrs_test_pbt::Arbitrary>::arbitrary(rng, size)".to_string(),
     }
 }
 
@@ -563,9 +563,9 @@ fn gen_field_value(strategy: &Option<String>) -> String {
 fn gen_field_shrink_iter(strategy: &Option<String>, field_access: &str) -> String {
     match strategy {
         Some(expr) => format!(
-            "{{ let __strat = ({expr}); ::testrs_pbt::Strategy::shrink_value(&__strat, &{field_access}) }}"
+            "{{ let __strat = ({expr}); ::gnrs_test_pbt::Strategy::shrink_value(&__strat, &{field_access}) }}"
         ),
-        None => format!("::testrs_pbt::Arbitrary::shrink(&{field_access})"),
+        None => format!("::gnrs_test_pbt::Arbitrary::shrink(&{field_access})"),
     }
 }
 
@@ -601,7 +601,7 @@ fn collect_until_top_comma(
 /// 生成される実装本体は型を `.parse()` 由来の call-site span でしか参照できない
 /// ため、トレイト境界が満たされない場合のエラーは `#[derive(Arbitrary)]` 行全体を
 /// 指してしまい、どのフィールドが原因か分かりません。ここでは元トークンの span を
-/// 保持したまま `__testrs_pbt_assert_arbitrary::<FieldType>()` を呼び出すことで、
+/// 保持したまま `__gnrs_test_pbt_assert_arbitrary::<FieldType>()` を呼び出すことで、
 /// エラーを当該フィールド型へ正確に指し示します。
 ///
 /// `generics_decl` は struct / enum のジェネリクス宣言（角括弧なし）、
@@ -620,13 +620,13 @@ fn field_arbitrary_assertions(
     // 検証関数の本体: ヘルパー定義に続けて、各フィールド型の turbofish 呼び出しを
     // 元 span 付きで並べます。
     let mut body: TokenStream =
-        "fn __testrs_pbt_assert_arbitrary<__TestrsPbtT: ::testrs_pbt::Arbitrary + ?Sized>() {}"
+        "fn __gnrs_test_pbt_assert_arbitrary<__GnrsTestPbtT: ::gnrs_test_pbt::Arbitrary + ?Sized>() {}"
             .parse()
             .expect("assertion helper must parse");
     for ty in field_types {
         let mut call: Vec<TokenTree> = vec![
             TokenTree::Ident(Ident::new(
-                "__testrs_pbt_assert_arbitrary",
+                "__gnrs_test_pbt_assert_arbitrary",
                 Span::call_site(),
             )),
             TokenTree::Punct(Punct::new(':', Spacing::Joint)),
@@ -651,7 +651,7 @@ fn field_arbitrary_assertions(
     } else {
         format!("<{generics_decl}>")
     };
-    let sig = format!("fn __testrs_pbt_assert_fields{generics}() {where_clause}");
+    let sig = format!("fn __gnrs_test_pbt_assert_fields{generics}() {where_clause}");
     let mut fn_ts: TokenStream = sig.parse().expect("assertion signature must parse");
     fn_ts.extend(std::iter::once(TokenTree::Group(Group::new(
         Delimiter::Brace,
@@ -691,7 +691,7 @@ fn generate_arbitrary_impl(s: &ParsedStruct) -> TokenStream {
     let mut where_pieces: Vec<String> = s
         .type_params
         .iter()
-        .map(|p| format!("{p}: ::testrs_pbt::Arbitrary"))
+        .map(|p| format!("{p}: ::gnrs_test_pbt::Arbitrary"))
         .collect();
     if !s.where_extra.is_empty() {
         where_pieces.push(s.where_extra.clone());
@@ -799,8 +799,8 @@ fn generate_arbitrary_impl(s: &ParsedStruct) -> TokenStream {
     };
 
     let code = format!(
-        "impl{generics_decl} ::testrs_pbt::Arbitrary for {self_ty} {where_clause} {{
-            fn arbitrary<__R: ::testrs_pbt::Rng + ?Sized>(rng: &mut __R, size: usize) -> Self {{
+        "impl{generics_decl} ::gnrs_test_pbt::Arbitrary for {self_ty} {where_clause} {{
+            fn arbitrary<__R: ::gnrs_test_pbt::Rng + ?Sized>(rng: &mut __R, size: usize) -> Self {{
                 {constructor_arb}
             }}
             fn shrink(&self) -> ::std::boxed::Box<dyn ::std::iter::Iterator<Item = Self> + '_> {{
@@ -833,7 +833,7 @@ fn generate_arbitrary_impl_enum(e: &ParsedEnum) -> TokenStream {
     let mut where_pieces: Vec<String> = e
         .type_params
         .iter()
-        .map(|p| format!("{p}: ::testrs_pbt::Arbitrary"))
+        .map(|p| format!("{p}: ::gnrs_test_pbt::Arbitrary"))
         .collect();
     if !e.where_extra.is_empty() {
         where_pieces.push(e.where_extra.clone());
@@ -930,9 +930,9 @@ fn generate_arbitrary_impl_enum(e: &ParsedEnum) -> TokenStream {
                     // パスではその束縛をそのまま渡します（追加の `&` は不要です）。
                     let shrink_iter = match &fi.strategy {
                         Some(expr) => format!(
-                            "{{ let __strat = ({expr}); ::testrs_pbt::Strategy::shrink_value(&__strat, {field_access}) }}"
+                            "{{ let __strat = ({expr}); ::gnrs_test_pbt::Strategy::shrink_value(&__strat, {field_access}) }}"
                         ),
-                        None => format!("::testrs_pbt::Arbitrary::shrink({field_access})"),
+                        None => format!("::gnrs_test_pbt::Arbitrary::shrink({field_access})"),
                     };
                     body.push_str(&format!(
                         "for __s in {shrink_iter} {{\n            __out.push({name}::{vname}({ctor_args}));\n        }}\n"
@@ -964,10 +964,10 @@ fn generate_arbitrary_impl_enum(e: &ParsedEnum) -> TokenStream {
                     // 関する考慮が必要です。フィールドの束縛はすでに参照です。
                     let shrink_iter = if let Some(expr) = &fi.strategy {
                         format!(
-                            "{{ let __strat = ({expr}); ::testrs_pbt::Strategy::shrink_value(&__strat, {sname}) }}"
+                            "{{ let __strat = ({expr}); ::gnrs_test_pbt::Strategy::shrink_value(&__strat, {sname}) }}"
                         )
                     } else {
-                        format!("::testrs_pbt::Arbitrary::shrink({sname})")
+                        format!("::gnrs_test_pbt::Arbitrary::shrink({sname})")
                     };
                     body.push_str(&format!(
                         "for __s in {shrink_iter} {{\n            __out.push({name}::{vname} {{ {ctor_args} }});\n        }}\n"
@@ -993,9 +993,9 @@ fn generate_arbitrary_impl_enum(e: &ParsedEnum) -> TokenStream {
     };
 
     let code = format!(
-        "impl{generics_decl} ::testrs_pbt::Arbitrary for {self_ty} {where_clause} {{
-            fn arbitrary<__R: ::testrs_pbt::Rng + ?Sized>(rng: &mut __R, size: usize) -> Self {{
-                let __pick = ::testrs_pbt::Rng::gen_range_u64(rng, 0, {n_variants}u64);
+        "impl{generics_decl} ::gnrs_test_pbt::Arbitrary for {self_ty} {where_clause} {{
+            fn arbitrary<__R: ::gnrs_test_pbt::Rng + ?Sized>(rng: &mut __R, size: usize) -> Self {{
+                let __pick = ::gnrs_test_pbt::Rng::gen_range_u64(rng, 0, {n_variants}u64);
                 match __pick {{
 {arms_gen}                    _ => unreachable!(),
                 }}
@@ -1030,7 +1030,7 @@ fn generate_arbitrary_impl_enum(e: &ParsedEnum) -> TokenStream {
 // #[pbt]
 // ---------------------------------------------------------------------------
 
-/// 自由関数を `testrs_pbt::run` で駆動されるプロパティベースのテストとして
+/// 自由関数を `gnrs_test_pbt::run` で駆動されるプロパティベースのテストとして
 /// ラップします。
 ///
 /// 任意指定の `key = literal` 引数を受け付けます:
@@ -1246,7 +1246,7 @@ fn generate_test_wrapper(f: &ParsedFn, args: &AttrArgs) -> TokenStream {
         format!(" -> {}", f.return_type)
     };
 
-    // async fn の場合、本体を `async move { ... }` でラップし、testrs-pbt の
+    // async fn の場合、本体を `async move { ... }` でラップし、gnrs-test-pbt の
     // 最小限の block_on で駆動します。async ブロックの戻り値型は推論されます。
     // ユーザーが Result<(), E> な本体を必要とする場合、型は末尾の `Ok(())` や
     // `?` による伝播から決定されます。
@@ -1259,10 +1259,10 @@ fn generate_test_wrapper(f: &ParsedFn, args: &AttrArgs) -> TokenStream {
         format!(
             "|{arg_pattern}: &{arg_type}| {{
                 {destructure}
-                let __out: {out_ty} = ::testrs_pbt::block_on(async move {{
+                let __out: {out_ty} = ::gnrs_test_pbt::block_on(async move {{
                     {body}
                 }});
-                ::testrs_pbt::IntoPropResult::into_prop_result(__out)
+                ::gnrs_test_pbt::IntoPropResult::into_prop_result(__out)
             }}"
         )
     } else {
@@ -1272,7 +1272,7 @@ fn generate_test_wrapper(f: &ParsedFn, args: &AttrArgs) -> TokenStream {
                 let __body = || {body_ret} {{
                     {body}
                 }};
-                ::testrs_pbt::IntoPropResult::into_prop_result(__body())
+                ::gnrs_test_pbt::IntoPropResult::into_prop_result(__body())
             }}"
         )
     };
@@ -1300,17 +1300,17 @@ fn generate_test_wrapper(f: &ParsedFn, args: &AttrArgs) -> TokenStream {
             overrides.push_str(&format!("            max_skips: {v}usize,\n"));
         }
         format!(
-            "::testrs_pbt::run_with::<{arg_type}, _, _>(
+            "::gnrs_test_pbt::run_with::<{arg_type}, _, _>(
                 {name_str},
-                ::testrs_pbt::Config {{
-{overrides}                    ..::testrs_pbt::Config::default()
+                ::gnrs_test_pbt::Config {{
+{overrides}                    ..::gnrs_test_pbt::Config::default()
                 }},
                 {inner_closure},
             )"
         )
     } else {
         format!(
-            "::testrs_pbt::run::<{arg_type}, _, _>(
+            "::gnrs_test_pbt::run::<{arg_type}, _, _>(
                 {name_str},
                 {inner_closure},
             )"

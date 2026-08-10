@@ -3,14 +3,14 @@
 //! 一般的なプロパティ本体が生成する `Future` を駆動するには十分です。
 //! シングルタスクで、I/O reactor も work-stealing もありません。プロパティが
 //! tokio 固有の機能（timer、ネットワークソケット、ファイル IO）を使う場合は、
-//! 本格的なランタイムが必要になります。testrs-pbt の executor は future が
+//! 本格的なランタイムが必要になります。gnrs-test-pbt の executor は future が
 //! 完了するまで現在のスレッドをブロックするだけです。
 //!
 //! これは、`#[pbt]` 属性マクロが `async fn` プロパティをランタイム依存
 //! を強制せずにラップできるように公開されています。直接呼び出すこともできます。
 //!
 //! ```
-//! use testrs_pbt::block_on;
+//! use gnrs_test_pbt::block_on;
 //! let v: u32 = block_on(async { 1 + 2 });
 //! assert_eq!(v, 3);
 //! ```

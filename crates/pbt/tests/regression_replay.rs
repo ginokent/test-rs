@@ -1,6 +1,6 @@
 //! regression-replay 機能のエンドツーエンドテストです。
 //!
-//! テストから`target/testrs-pbt-regressions/`に直接アクセスするのは難しいため
+//! テストから`target/gnrs-test-pbt-regressions/`に直接アクセスするのは難しいため
 //! （他のテストと競合します）、代わりに一時ディレクトリを介してディスク上の
 //! IO を動作確認し、以下を検証します:
 //!
@@ -17,7 +17,7 @@ fn regression_seed_is_persisted_and_replayed() {
     // ビルドします。
     //
     // 別のバイナリクレートを用意せずにこのテストを自己完結させるため、代わりに
-    // regression_replay を有効にした testrs-pbt 自身のランナーと既知の失敗するプロパティを
+    // regression_replay を有効にした gnrs-test-pbt 自身のランナーと既知の失敗するプロパティを
     // 使って regression モジュールの（半）公開のファイル IO を動作させ、結果として
     // できたファイルを直接読みます。
 
@@ -30,7 +30,7 @@ fn regression_seed_is_persisted_and_replayed() {
                 .expect("CARGO_MANIFEST_DIR must be set by cargo");
             std::path::PathBuf::from(manifest).join("target")
         });
-    let reg_dir = target_dir.join("testrs-pbt-regressions");
+    let reg_dir = target_dir.join("gnrs-test-pbt-regressions");
     // 他のテストと衝突しないよう、一意なテスト名を使用します。
     let test_name = format!("regression_e2e_{}", std::process::id());
     let reg_file = reg_dir.join(format!("{test_name}.txt"));
@@ -41,7 +41,7 @@ fn regression_seed_is_persisted_and_replayed() {
     // 簡潔さのためここでは std::panic::catch_unwind を使用します。
     let test_name_for_run = test_name.clone();
     let captured = std::panic::catch_unwind(move || {
-        testrs_pbt::run::<u32, _, _>(&test_name_for_run, |&n: &u32| n < 50);
+        gnrs_test_pbt::run::<u32, _, _>(&test_name_for_run, |&n: &u32| n < 50);
     });
     assert!(captured.is_err(), "expected runner to panic on failure");
 
@@ -62,7 +62,7 @@ fn regression_seed_is_persisted_and_replayed() {
     // 再び panic します。
     let test_name_for_replay = test_name.clone();
     let captured2 = std::panic::catch_unwind(move || {
-        testrs_pbt::run::<u32, _, _>(&test_name_for_replay, |&n: &u32| n < 50);
+        gnrs_test_pbt::run::<u32, _, _>(&test_name_for_replay, |&n: &u32| n < 50);
     });
     assert!(
         captured2.is_err(),
@@ -75,7 +75,7 @@ fn regression_seed_is_persisted_and_replayed() {
 
 #[test]
 fn run_with_regression_replay_disabled_does_not_persist() {
-    use testrs_pbt::Config;
+    use gnrs_test_pbt::Config;
 
     let target_dir = std::env::var("CARGO_TARGET_DIR")
         .ok()
@@ -84,14 +84,14 @@ fn run_with_regression_replay_disabled_does_not_persist() {
             let manifest = std::env::var("CARGO_MANIFEST_DIR").unwrap();
             std::path::PathBuf::from(manifest).join("target")
         });
-    let reg_dir = target_dir.join("testrs-pbt-regressions");
+    let reg_dir = target_dir.join("gnrs-test-pbt-regressions");
     let test_name = format!("regression_disabled_{}", std::process::id());
     let reg_file = reg_dir.join(format!("{test_name}.txt"));
     let _ = fs::remove_file(&reg_file);
 
     let test_name_owned = test_name.clone();
     let _ = std::panic::catch_unwind(move || {
-        testrs_pbt::run_with::<u32, _, _>(
+        gnrs_test_pbt::run_with::<u32, _, _>(
             &test_name_owned,
             Config {
                 regression_replay: false,

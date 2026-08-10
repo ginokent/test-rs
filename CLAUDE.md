@@ -10,20 +10,20 @@
 
 ## リポ固有の前提
 
-本リポジトリ **testrs** は Rust 向けテストツール群のワークスペースであり、
+本リポジトリ **gnrs-test** は Rust 向けテストツール群のワークスペースであり、
 **PBT は将来持ちうるカテゴリの一つにすぎない** (最上位の枠組みは `SPEC.md`
 の「リポジトリの位置づけ」を参照)。PBT とは異質なテスト手法を加えるときは、
 既存 crate の feature に押し込まず **新しい兄弟 crate として追加** すること
-— `testrs-pbt` を「リポジトリ全体」と取り違えないこと。**fuzzing は PBT の
-一部ではなく別カテゴリ** であり、`testrs-fuzz` は共有基盤 `testrs-core` のみに
-依存し PBT ランナー `testrs-pbt` には依存しない。**benchmarking もまた別
-カテゴリ** であり、`testrs-bench` は計測に Rng/Arbitrary を要しないため
-`testrs-core` にすら依存せず **std のみで完結する独立 crate** である
+— `gnrs-test-pbt` を「リポジトリ全体」と取り違えないこと。**fuzzing は PBT の
+一部ではなく別カテゴリ** であり、`gnrs-test-fuzz` は共有基盤 `gnrs-test-core` のみに
+依存し PBT ランナー `gnrs-test-pbt` には依存しない。**benchmarking もまた別
+カテゴリ** であり、`gnrs-test-bench` は計測に Rng/Arbitrary を要しないため
+`gnrs-test-core` にすら依存せず **std のみで完結する独立 crate** である
 (各カテゴリの crate が依存する共有基盤は最小限に留めること)。
 
-現在の構成は、共有基盤 `testrs-core` の上に PBT 系 (`testrs-pbt` /
-`testrs-pbt-derive`) と fuzzing 系 (`testrs-fuzz`) が乗り、さらに `testrs-core`
-にも依存しない benchmarking 系 (`testrs-bench`) が並ぶ、外部依存ゼロの
+現在の構成は、共有基盤 `gnrs-test-core` の上に PBT 系 (`gnrs-test-pbt` /
+`gnrs-test-pbt-derive`) と fuzzing 系 (`gnrs-test-fuzz`) が乗り、さらに `gnrs-test-core`
+にも依存しない benchmarking 系 (`gnrs-test-bench`) が並ぶ、外部依存ゼロの
 PBT + in-process fuzzer + マイクロベンチライブラリ群。エージェントは以下の
 制約を **暗黙に破らないこと**:
 
@@ -32,13 +32,13 @@ PBT + in-process fuzzer + マイクロベンチライブラリ群。エージェ
   追加を提案する前に `SPEC.md` を再読すること
 - **`unsafe_code = "forbid"`** が workspace 全体で強制されている。`unsafe`
   ブロックは書かない。`std::pin::pin!` 等で代替する
-- **`testrs-fuzz/examples/find_crash.rs` は意図的に panic する** デモ
+- **`gnrs-test-fuzz/examples/find_crash.rs` は意図的に panic する** デモ
   example。CI / test job に混ぜないこと (現状の `cargo test --workspace
   --all-targets` は example の binary build はするが run しないので OK)
 - **issue は `issues/` 配下管理** (global `~/.claude/CLAUDE.md` 参照)。完了
   したら `issues/completed/` に移動し、同じ commit に含める
 - **PBT で記述可能なものは単体テストで書かない** (`~/.claude/CLAUDE.md` の
-  「テストの役割分担」参照)。ただし `testrs-core` 内のテストは PBT runner
+  「テストの役割分担」参照)。ただし `gnrs-test-core` 内のテストは PBT runner
   自体が使えない (循環依存) ため、ループ + 固定 seed の単体テストで書く
 
 ## 作業ブランチの命名 (セッション開始時に必ず確認)

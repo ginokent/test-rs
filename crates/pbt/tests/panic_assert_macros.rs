@@ -4,7 +4,7 @@
 //! 無出力動作）を確認するもので、PBT runner 自体の振る舞いに依存するため固定
 //! seed の単体テストとして記述します。
 
-use testrs_pbt::{forall_with, prop_assert_no_panic, prop_assert_panic, Config, Outcome};
+use gnrs_test_pbt::{forall_with, prop_assert_no_panic, prop_assert_panic, Config, Outcome};
 
 /// SilentPanicHook を有効化し（マクロ内 catch_unwind の panic 出力を抑止）、
 /// regression ファイル IO を避ける Config を返します。

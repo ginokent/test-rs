@@ -4,7 +4,7 @@
 //! `forall(|(a, b): &(T, U)| ...)` へ展開されることを確認します。展開結果が
 //! ランナーで実際に動くことに依存するため固定 seed の単体テストとして記述します。
 
-use testrs_pbt::{forall, prop_assert_eq, Outcome};
+use gnrs_test_pbt::{forall, prop_assert_eq, Outcome};
 
 #[test]
 fn forall_macro_single_var_expands_to_forall() {

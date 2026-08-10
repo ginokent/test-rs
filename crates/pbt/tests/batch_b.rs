@@ -1,8 +1,8 @@
 //! Batch 1+2で追加された機能のテスト: 文字列 strategy、prop_compose!、
 //! prop_assert_matches!、prop_skip!、prop_with_context!、Outcome の accessor。
 
-use testrs_pbt::strategy::{int_range, str};
-use testrs_pbt::{
+use gnrs_test_pbt::strategy::{int_range, str};
+use gnrs_test_pbt::{
     forall_strategy_with, forall_with, prop_assert, prop_assert_eq, prop_assert_matches,
     prop_compose, prop_skip, prop_with_context, run_strategy_with, Config, Outcome,
 };

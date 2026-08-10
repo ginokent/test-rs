@@ -6,10 +6,10 @@
 //! clippy の「almost-complete range」lint は誤検知です。
 #![allow(clippy::almost_complete_range)]
 
-use testrs_pbt::strategy::{
+use gnrs_test_pbt::strategy::{
     any, bytes, char_range, f64_range, int_range, just, vec_of, Strategy, StrategyExt,
 };
-use testrs_pbt::{
+use gnrs_test_pbt::{
     forall_strategy_with, prop_assert, prop_assert_close, prop_oneof, prop_recursive, Config,
 };
 
@@ -29,7 +29,7 @@ fn cfg(seed: u64) -> Config {
 fn flat_map_generates_dependent_length() {
     // まず長さ1..=5を選び、その長さちょうどの Vec を生成します。
     let s = int_range(1usize..6).flat_map(|len| vec_of(any::<u8>(), len..len + 1));
-    let mut rng = testrs_pbt::XorShift64::seed_from_u64(7);
+    let mut rng = gnrs_test_pbt::XorShift64::seed_from_u64(7);
     for _ in 0..100 {
         let v = s.new_value(&mut rng, 32);
         assert!((1..=5).contains(&v.len()));
@@ -52,7 +52,7 @@ fn flat_map_drives_property() {
 #[test]
 fn char_range_stays_in_range_and_skips_surrogates() {
     let s = char_range('a'..'z');
-    let mut rng = testrs_pbt::XorShift64::seed_from_u64(13);
+    let mut rng = gnrs_test_pbt::XorShift64::seed_from_u64(13);
     for _ in 0..200 {
         let c = s.new_value(&mut rng, 16);
         assert!(('a'..'z').contains(&c));
@@ -70,7 +70,7 @@ fn char_range_shrinks_toward_lo() {
 #[test]
 fn bytes_strategy_respects_length() {
     let s = bytes(4..8);
-    let mut rng = testrs_pbt::XorShift64::seed_from_u64(17);
+    let mut rng = gnrs_test_pbt::XorShift64::seed_from_u64(17);
     for _ in 0..50 {
         let v = s.new_value(&mut rng, 16);
         assert!(v.len() >= 4 && v.len() < 8);
@@ -82,7 +82,7 @@ fn bytes_strategy_respects_length() {
 #[test]
 fn f64_range_stays_in_bounds() {
     let s = f64_range(-1.0..1.0);
-    let mut rng = testrs_pbt::XorShift64::seed_from_u64(19);
+    let mut rng = gnrs_test_pbt::XorShift64::seed_from_u64(19);
     for _ in 0..200 {
         let v = s.new_value(&mut rng, 16);
         assert!((-1.0..1.0).contains(&v));
@@ -108,7 +108,7 @@ fn f64_range_shrinks_toward_lo_when_zero_not_in_range() {
 
 #[test]
 fn prop_assert_close_passes_within_epsilon() {
-    let outcome = testrs_pbt::forall_with(cfg(23), |&n: &u8| -> bool {
+    let outcome = gnrs_test_pbt::forall_with(cfg(23), |&n: &u8| -> bool {
         // 自明に近い値: 同一の値はどんな epsilon に対しても範囲内です。
         let x = n as f64;
         prop_assert_close!(x, x + 1e-12, epsilon = 1e-9);
@@ -119,7 +119,7 @@ fn prop_assert_close_passes_within_epsilon() {
 
 #[test]
 fn prop_assert_close_fails_outside_epsilon() {
-    let outcome = testrs_pbt::forall_with(cfg(29), |_: &u8| -> bool {
+    let outcome = gnrs_test_pbt::forall_with(cfg(29), |_: &u8| -> bool {
         prop_assert_close!(1.0_f64, 2.0_f64, epsilon = 0.1);
         true
     });
@@ -131,7 +131,7 @@ fn prop_assert_close_fails_outside_epsilon() {
 
 // --- prop_recursive! -----------------------------------------------
 
-#[derive(testrs_pbt::Arbitrary, Debug, Clone, PartialEq)]
+#[derive(gnrs_test_pbt::Arbitrary, Debug, Clone, PartialEq)]
 enum Json {
     Null,
     Bool(bool),
@@ -139,7 +139,7 @@ enum Json {
     Array(Vec<Json>),
 }
 
-fn json_strategy() -> testrs_pbt::strategy::BoxedStrategy<Json> {
+fn json_strategy() -> gnrs_test_pbt::strategy::BoxedStrategy<Json> {
     prop_recursive! {
         leaf = prop_oneof![
             just(Json::Null),
@@ -158,7 +158,7 @@ fn json_strategy() -> testrs_pbt::strategy::BoxedStrategy<Json> {
 #[test]
 fn prop_recursive_builds_tree_strategy() {
     let s = json_strategy();
-    let mut rng = testrs_pbt::XorShift64::seed_from_u64(31);
+    let mut rng = gnrs_test_pbt::XorShift64::seed_from_u64(31);
     let mut max_depth_seen = 0;
     for _ in 0..200 {
         let v = s.new_value(&mut rng, 8);
@@ -171,7 +171,7 @@ fn prop_recursive_builds_tree_strategy() {
         "expected depth <= 4, saw {max_depth_seen}"
     );
     // 再帰が発火することを確認するため、Array が少なくとも 1 つは現れるはずです。
-    let mut rng = testrs_pbt::XorShift64::seed_from_u64(31);
+    let mut rng = gnrs_test_pbt::XorShift64::seed_from_u64(31);
     let any_array = (0..200).any(|_| matches!(s.new_value(&mut rng, 8), Json::Array(_)));
     assert!(any_array, "expected at least one Array variant");
 }

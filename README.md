@@ -1,16 +1,16 @@
-# testrs
+# gnrs-test
 
 Rust 向けテストツール群を収めるワークスペース。**外部依存ゼロ** —
 std とコンパイラ提供の `proc_macro` クレートのみで動作する。
 
 現在は **PBT** (プロパティベーステスト)・**fuzzing**・**benchmarking** の
-3 カテゴリを提供する。共有基盤 `testrs-core` の上に PBT 系 (`testrs-pbt` /
-`testrs-pbt-derive`) と fuzzing 系 (`testrs-fuzz`) が乗り、さらに `testrs-core`
-にも依存しない独立カテゴリとして benchmarking 系 (`testrs-bench`) が並ぶ。
+3 カテゴリを提供する。共有基盤 `gnrs-test-core` の上に PBT 系 (`gnrs-test-pbt` /
+`gnrs-test-pbt-derive`) と fuzzing 系 (`gnrs-test-fuzz`) が乗り、さらに `gnrs-test-core`
+にも依存しない独立カテゴリとして benchmarking 系 (`gnrs-test-bench`) が並ぶ。
 **各カテゴリは別物**であり、必要な共有基盤だけに依存する兄弟関係にある
-(`testrs-fuzz` は `testrs-core` のみに依存し PBT ランナー `testrs-pbt` には
-依存しない。`testrs-bench` は計測に Rng/Arbitrary を要しないため
-`testrs-core` にすら依存せず std のみで完結する)。いずれも testrs が持つ
+(`gnrs-test-fuzz` は `gnrs-test-core` のみに依存し PBT ランナー `gnrs-test-pbt` には
+依存しない。`gnrs-test-bench` は計測に Rng/Arbitrary を要しないため
+`gnrs-test-core` にすら依存せず std のみで完結する)。いずれも gnrs-test が持つ
 複数カテゴリの一つにすぎない。
 
 大方針は [`SPEC.md`](SPEC.md) を参照。計画中の項目・明示的な非ゴール・
@@ -21,15 +21,15 @@ std とコンパイラ提供の `proc_macro` クレートのみで動作する�
 
 | クレート             | カテゴリ | 目的                                                              | README |
 |----------------------|----------|-------------------------------------------------------------------|--------|
-| `testrs-core`        | 共有     | `Rng`, `XorShift64`, `Arbitrary` trait, `strategy::*` combinator   | —      |
-| `testrs-pbt-derive`  | PBT      | `#[derive(Arbitrary)]` と `#[pbt]` proc-macro                      | —      |
-| `testrs-pbt`         | PBT          | テストランナー、assertion マクロ、regression shrinking        | [crates/pbt/README.md](crates/pbt/README.md) |
-| `testrs-fuzz`        | fuzzing      | in-process mutation 駆動の fuzzer (`fuzz` + `fuzz_typed`)      | [crates/fuzz/README.md](crates/fuzz/README.md) |
-| `testrs-bench`       | benchmarking | std のみ依存のマイクロベンチ (`bench` + `bench_compare`)       | [crates/bench/README.md](crates/bench/README.md) |
+| `gnrs-test-core`        | 共有     | `Rng`, `XorShift64`, `Arbitrary` trait, `strategy::*` combinator   | —      |
+| `gnrs-test-pbt-derive`  | PBT      | `#[derive(Arbitrary)]` と `#[pbt]` proc-macro                      | —      |
+| `gnrs-test-pbt`         | PBT          | テストランナー、assertion マクロ、regression shrinking        | [crates/pbt/README.md](crates/pbt/README.md) |
+| `gnrs-test-fuzz`        | fuzzing      | in-process mutation 駆動の fuzzer (`fuzz` + `fuzz_typed`)      | [crates/fuzz/README.md](crates/fuzz/README.md) |
+| `gnrs-test-bench`       | benchmarking | std のみ依存のマイクロベンチ (`bench` + `bench_compare`)       | [crates/bench/README.md](crates/bench/README.md) |
 
-`testrs-core` と `testrs-pbt-derive` は単体利用を想定しない内部基盤で、
-`testrs-pbt` がその内容をすべて再エクスポートする。利用者が直接依存する
-のは `testrs-pbt` (PBT 利用)・`testrs-fuzz` (fuzzing 利用)・`testrs-bench`
+`gnrs-test-core` と `gnrs-test-pbt-derive` は単体利用を想定しない内部基盤で、
+`gnrs-test-pbt` がその内容をすべて再エクスポートする。利用者が直接依存する
+のは `gnrs-test-pbt` (PBT 利用)・`gnrs-test-fuzz` (fuzzing 利用)・`gnrs-test-bench`
 (benchmarking 利用) の 3 つ。
 
 今後これらとは異質なテストカテゴリを加える場合は、既存 crate の feature
@@ -40,15 +40,15 @@ std とコンパイラ提供の `proc_macro` クレートのみで動作する�
 ## どちらを使うか
 
 - **プロパティベーステスト** — 入力を生成し不変条件 (ラウンドトリップ、
-  仕様一致など) を検証したい → **`testrs-pbt`**。
+  仕様一致など) を検証したい → **`gnrs-test-pbt`**。
   利用ガイド: [crates/pbt/README.md](crates/pbt/README.md)
 - **fuzzing** — 任意入力に対するクラッシュ耐性 (panic 安全性) を叩きたい
-  → **`testrs-fuzz`**。利用ガイド: [crates/fuzz/README.md](crates/fuzz/README.md)
+  → **`gnrs-test-fuzz`**。利用ガイド: [crates/fuzz/README.md](crates/fuzz/README.md)
 - **benchmarking** — コードの実行時間を測りたい / 2 実装を相対比較したい
-  → **`testrs-bench`**。利用ガイド: [crates/bench/README.md](crates/bench/README.md)
+  → **`gnrs-test-bench`**。利用ガイド: [crates/bench/README.md](crates/bench/README.md)
 
-なお `testrs-fuzz` の `fuzz_typed` に独自型を渡す場合、`#[derive(Arbitrary)]`
-の生成コードが PBT facade `testrs-pbt` を参照するため `testrs-pbt` も必要となる。
+なお `gnrs-test-fuzz` の `fuzz_typed` に独自型を渡す場合、`#[derive(Arbitrary)]`
+の生成コードが PBT facade `gnrs-test-pbt` を参照するため `gnrs-test-pbt` も必要となる。
 
 ## インストール
 
@@ -58,11 +58,11 @@ crates.io には公開しない。git dependency として参照される運用�
 ```toml
 [dev-dependencies]
 # PBT 利用
-testrs-pbt = { git = "https://github.com/ginokent/testrs", package = "testrs-pbt" }
+gnrs-test-pbt = { git = "https://github.com/ginokent/gnrs-test", package = "gnrs-test-pbt" }
 # fuzzing 利用 (オプション)
-testrs-fuzz = { git = "https://github.com/ginokent/testrs", package = "testrs-fuzz" }
+gnrs-test-fuzz = { git = "https://github.com/ginokent/gnrs-test", package = "gnrs-test-fuzz" }
 # benchmarking 利用 (オプション)
-testrs-bench = { git = "https://github.com/ginokent/testrs", package = "testrs-bench" }
+gnrs-test-bench = { git = "https://github.com/ginokent/gnrs-test", package = "gnrs-test-bench" }
 ```
 
 ## 最小例
@@ -70,7 +70,7 @@ testrs-bench = { git = "https://github.com/ginokent/testrs", package = "testrs-b
 プロパティベーステスト ([詳細](crates/pbt/README.md)):
 
 ```rust
-use testrs_pbt::{pbt, prop_assert_eq};
+use gnrs_test_pbt::{pbt, prop_assert_eq};
 
 #[pbt]
 fn addition_is_commutative(a: i32, b: i32) {
@@ -81,7 +81,7 @@ fn addition_is_commutative(a: i32, b: i32) {
 fuzzing ([詳細](crates/fuzz/README.md)):
 
 ```rust
-use testrs_fuzz::{fuzz, FuzzConfig};
+use gnrs_test_fuzz::{fuzz, FuzzConfig};
 
 #[test]
 fn parser_does_not_panic() {
@@ -95,7 +95,7 @@ fn parser_does_not_panic() {
 benchmarking ([詳細](crates/bench/README.md)):
 
 ```rust
-use testrs_bench::bench_compare;
+use gnrs_test_bench::bench_compare;
 
 bench_compare(
     "sort_unstable",
@@ -109,7 +109,7 @@ bench_compare(
 
 - **外部依存ゼロ** — 直接依存は std とコンパイラ組み込みの `proc_macro`
   クレートのみ。`syn` / `quote` / `proc-macro2` を含む proc-macro 補助
-  クレートも使わない (`testrs-pbt-derive` は手書き parser で実装)。
+  クレートも使わない (`gnrs-test-pbt-derive` は手書き parser で実装)。
 - **`unsafe_code = "forbid"`** をワークスペース全体で強制。組み込み
   `block_on` executor も `std::pin::pin!` で unsafe ゼロで実装する。
 - **Toolchain** — `rust-toolchain.toml` で stable 1.95 に pin。MSRV は 1.82。

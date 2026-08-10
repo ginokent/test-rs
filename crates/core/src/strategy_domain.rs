@@ -2,7 +2,7 @@
 //!
 //! parser / serializer / validator 系テストでよく使う「メールっぽい文字列」
 //! 「UUID っぽい文字列」「IPv4 っぽい文字列」「ISO 8601 っぽい日付」「URL
-//! っぽい文字列」を `testrs_pbt::strategy::str` の組み合わせで生成します。
+//! っぽい文字列」を `gnrs_test_pbt::strategy::str` の組み合わせで生成します。
 //!
 //! # 仕様準拠ではない近似
 //!
@@ -21,8 +21,8 @@
 //! # 例
 //!
 //! ```
-//! use testrs_core::strategy::{domain, Strategy};
-//! use testrs_core::XorShift64;
+//! use gnrs_test_core::strategy::{domain, Strategy};
+//! use gnrs_test_core::XorShift64;
 //!
 //! let mut rng = XorShift64::seed_from_u64(7);
 //! let email = domain::email_like().new_value(&mut rng, 16);

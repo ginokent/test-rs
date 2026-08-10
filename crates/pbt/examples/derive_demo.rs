@@ -1,12 +1,12 @@
-//! Tier-A 以降に追加された機能を含む、testrs-pbt の完全なワークフローを実演します。
+//! Tier-A 以降に追加された機能を含む、gnrs-test-pbt の完全なワークフローを実演します。
 //! 具体的には、`#[arbitrary(strategy = ...)]`フィールド属性、`flat_map`による
 //! 依存生成、`prop_recursive!`による再帰データ、`prop_assert_close!`、
 //! そしてその他のツール群が連携して動作することを示します。
 //!
-//! 実行方法: `cargo run --example derive_demo -p testrs-pbt`
+//! 実行方法: `cargo run --example derive_demo -p gnrs-test-pbt`
 
-use testrs_pbt::strategy::{any, int_range, just, str, vec_of, StrategyExt};
-use testrs_pbt::{
+use gnrs_test_pbt::strategy::{any, int_range, just, str, vec_of, StrategyExt};
+use gnrs_test_pbt::{
     classify, prop_assert, prop_assert_close, prop_assert_eq, prop_assert_matches, prop_assume,
     prop_oneof, prop_recursive, run, run_strategy_with, Arbitrary, Config,
 };

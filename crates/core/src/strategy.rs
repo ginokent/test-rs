@@ -8,7 +8,7 @@
 //! # 例
 //!
 //! ```
-//! use testrs_core::strategy::{any, int_range, vec_of, one_of, just, Strategy, StrategyExt};
+//! use gnrs_test_core::strategy::{any, int_range, vec_of, one_of, just, Strategy, StrategyExt};
 //!
 //! let small_positives = int_range(1i32..100);
 //! let small_vec       = vec_of(small_positives, 1..5);
@@ -133,7 +133,7 @@ pub trait StrategyExt: Strategy + Sized {
     /// 列を返すため、`assert_eq!(s.sample(3), vec![...])` のような厳密
     /// 検証も書けます。
     ///
-    /// 内部 seed は `env_seed()` (`TESTRS_PBT_SEED` 環境変数等) とは独立で、
+    /// 内部 seed は `env_seed()` (`GNRS_TEST_PBT_SEED` 環境変数等) とは独立で、
     /// `size = 32` を `new_value` に渡します。case ごとに size を増やす
     /// ランナーのスケジュールは再現しないため、これは「真の値域」を網羅
     /// する手段ではなく、視覚的な動作確認用です。網羅的な検証は
@@ -694,7 +694,7 @@ where
 // --- recursive: 深さ制限付き再帰 strategy --------------------
 
 /// `leaf` の上に `inner` を `max_depth` 回スタックして再帰 strategy を
-/// 構築します。[`crate::strategy::recursive`] および `testrs-pbt` クレートの
+/// 構築します。[`crate::strategy::recursive`] および `gnrs-test-pbt` クレートの
 /// `prop_recursive!` マクロで使用されます。
 ///
 /// `inner` は各階層で、これまでに構築された strategy を引数に呼び出されます。

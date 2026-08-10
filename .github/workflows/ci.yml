@@ -273,7 +273,7 @@ jobs:
   # - `if:` による排他制御を廃止し、matrix.os の中身 (gate が返す JSON
   #   配列) で自然に分岐させる。`!run ci` 時は 1 OS、`!run ci matrix` 時は
   #   3 OS で展開される
-  # - testrs-pbt-derive の手書き parser と block_on executor の multi-platform
+  # - gnrs-test-pbt-derive の手書き parser と block_on executor の multi-platform
   #   挙動は `!run ci matrix` で 3 OS 検証する (consumer 側で windows / macOS
   #   でも使われる前提のため、最終 merge 前に matrix で緑にしておく)
   test:
@@ -324,7 +324,7 @@ jobs:
   msrv:
     name: MSRV (1.82) cargo test
     # SPEC.md の Toolchain pin 方針で MSRV = 1.82 (`PanicHookInfo` 由来) を
-    # 宣言している。testrs は直接依存ゼロ (std + proc_macro のみ) であり
+    # 宣言している。gnrs-test は直接依存ゼロ (std + proc_macro のみ) であり
     # dev-dep も無いため、build/check ではなく `cargo test` まで MSRV で
     # 流して実挙動を検証する (最も厳格な MSRV 保証)。
     needs: gate
@@ -366,7 +366,7 @@ jobs:
     name: cargo deny (license/bans/sources/advisories)
     # ================================================================
     # 本 job は **許容済 3rd party action `EmbarkStudios/cargo-deny-action@v2`**
-    # を SHA pin で利用する。testrs の 3rd party action policy では、この
+    # を SHA pin で利用する。gnrs-test の 3rd party action policy では、この
     # action の **1 個のみ** を SHA pin で許容し、それ以外の 3rd party
     # action は禁止する (本 workflow 冒頭の "3rd party action allowlist" 参照)。
     #

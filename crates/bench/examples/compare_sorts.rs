@@ -1,9 +1,9 @@
 //! `sort` と `sort_unstable` を相対比較するデモです。
 //!
-//! 実行: `cargo run --release --example compare_sorts -p testrs-bench`
+//! 実行: `cargo run --release --example compare_sorts -p gnrs-test-bench`
 
+use gnrs_test_bench::{bench, bench_compare};
 use std::hint::black_box;
-use testrs_bench::{bench, bench_compare};
 
 fn main() {
     // 単発の計測。

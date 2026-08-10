@@ -1,13 +1,13 @@
 //! 統計モジュールの数学的性質を PBT で検証する。
 //!
-//! testrs-bench 自体は std のみに依存するが、テストでは testrs-pbt を
+//! gnrs-test-bench 自体は std のみに依存するが、テストでは gnrs-test-pbt を
 //! dev-dependency として用い、型情報 (Strategy) に基づく入力生成で
 //! プロパティを検証する。サンプルは有限・非負のナノ秒値を模すため、
 //! `f64_range(0.0..1e9)` で生成する (NaN / 無限大は混入させない)。
 
-use testrs_bench::stats::{self, OutlierFilter, Statistics};
-use testrs_pbt::run_strategy;
-use testrs_pbt::strategy::{f64_range, vec_of};
+use gnrs_test_bench::stats::{self, OutlierFilter, Statistics};
+use gnrs_test_pbt::run_strategy;
+use gnrs_test_pbt::strategy::{f64_range, vec_of};
 
 /// 非空サンプルの平均は [min, max] に収まる。
 #[test]
