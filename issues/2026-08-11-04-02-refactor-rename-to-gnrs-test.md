@@ -275,7 +275,7 @@ required by package `gnrs-time-core v0.1.0
 |---|---|---|
 | `gnrs-example` (旧 examplers) | 40 / 13 | **完了** — issue `2026-08-11-04-47` / PR #66 / merge `78c4d1a` |
 | `gnrs-log` | 44 / 16 | **完了** — issue `2026-08-11-05-58` / PR #24 / merge `7538515` |
-| `gnrs-time` (旧 timers) | 53 / 23 | 未着手 |
+| `gnrs-time` (旧 timers) | 53 / 23 | **完了** — issue `2026-08-11-06-28` / PR #19 / merge `b3c512f` |
 | `gnrs-http` (旧 httprs) | 193 / 54 | 未着手 |
 | `gnrs-crypto` (旧 cryptors) | 245 / 85 | 未着手 |
 | `gnrs-async` (旧 asyncrs) | 117 / 47 | **除外** (別作業が進行中。 指示文で引き継ぐ) |
@@ -296,6 +296,19 @@ required by package `gnrs-time-core v0.1.0
   `.github/actions/git-auth/action.yml` / `.github/workflows/README.md`)。 これは
   ドキュメント / input の説明文なので置換で足り、 **Fine-grained PAT 側の権限は
   GitHub の改名追従で維持される**ため secret の再発行は不要
+- **下流にも大文字形 (環境変数名) が存在する**。 `gnrs-time` の
+  `.github/workflows/fuzz.yml:10` は「job log の `TESTRS_PBT_SEED` を手元で
+  `cargo test` の env に渡すこと」と案内していた。 本 repo で環境変数を
+  `GNRS_TEST_PBT_SEED` へ改名したため、 **追従しないと下流が存在しない環境変数を
+  案内することになる**。 小文字の置換では変わらないので下流でも独立段が必要。
+  `gnrs-example` / `gnrs-log` には該当が無かったので、 **repo ごとに `TESTRS` の
+  走査が必要** (残る `gnrs-http` / `gnrs-crypto` でも確認する)
+- **下流の追従検証が本 repo の MSRV 判断に使えた**。 `gnrs-time` で
+  `cargo +1.82 test --workspace --all-targets --all-features` が EXIT=0 だったため、
+  「msrv job が 1.95 で test していた」ことと「MSRV 1.82 自体は成立している」ことを
+  切り分けられた。 本 repo の msrv issue
+  (`2026-08-11-04-32-ci-msrv-job-does-not-verify-msrv`) の完了条件「1.82 で実際に通るか
+  確認する」も、 同じ手段 (`cargo +1.82`) で検証できる見込み
 
 ## 非スコープ
 
