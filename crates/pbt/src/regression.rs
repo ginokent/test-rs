@@ -1,9 +1,9 @@
 //! regression seed の永続化を行います。
 //!
 //! プロパティテストが失敗すると、その seed は
-//! `<target>/testrs-pbt-regressions/<sanitized_name>.txt` に追記されます。次回以降の
+//! `<target>/gnrs-test-pbt-regressions/<sanitized_name>.txt` に追記されます。次回以降の
 //! 実行では、runner はランダムなケースを生成する前にまずこれらの seed を再生します。
-//! これにより、ユーザーが `TESTRS_PBT_SEED` を設定することを覚えていなくても、
+//! これにより、ユーザーが `GNRS_TEST_PBT_SEED` を設定することを覚えていなくても、
 //! 「バグが再発した」という regression を決定論的に捕捉できます。
 
 use std::collections::BTreeSet;
@@ -30,7 +30,7 @@ pub(crate) fn regression_file_path(test_name: &str) -> Option<PathBuf> {
     let sanitized = sanitize(test_name);
     Some(
         target_dir
-            .join("testrs-pbt-regressions")
+            .join("gnrs-test-pbt-regressions")
             .join(format!("{sanitized}.txt")),
     )
 }
@@ -89,7 +89,7 @@ pub(crate) fn append_seed(path: &Path, seed: u64) -> io::Result<()> {
         seeds.drain(..excess);
     }
     let mut content = String::new();
-    content.push_str("# Regression seeds replayed by testrs-pbt. Add or remove freely.\n");
+    content.push_str("# Regression seeds replayed by gnrs-test-pbt. Add or remove freely.\n");
     for s in &seeds {
         content.push_str(&format!("{s}\n"));
     }
@@ -109,7 +109,8 @@ mod tests {
 
     #[test]
     fn append_and_read_roundtrip() {
-        let dir = std::env::temp_dir().join(format!("testrs-pbt-regtest-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("gnrs-test-pbt-regtest-{}", std::process::id()));
         let _ = fs::remove_dir_all(&dir);
         let path = dir.join("foo.txt");
         append_seed(&path, 1).unwrap();
@@ -122,8 +123,10 @@ mod tests {
 
     #[test]
     fn appends_bounded_to_max() {
-        let dir =
-            std::env::temp_dir().join(format!("testrs-pbt-regtest-bound-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "gnrs-test-pbt-regtest-bound-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&dir);
         let path = dir.join("bound.txt");
         for s in 0..(MAX_SEEDS_PER_FILE as u64 + 10) {

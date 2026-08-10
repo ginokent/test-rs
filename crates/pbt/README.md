@@ -1,26 +1,26 @@
-# testrs-pbt
+# gnrs-test-pbt
 
 Rust 向けのプロパティベーステスト (PBT) ランナー。入力を生成して
 不変条件を検証し、失敗時は最小反例まで自動 shrink する。
 **外部依存ゼロ** — std とコンパイラ提供の `proc_macro` クレートのみ。
 
-> ワークスペース **testrs** を構成する一 crate。リポジトリ全体の俯瞰
+> ワークスペース **gnrs-test** を構成する一 crate。リポジトリ全体の俯瞰
 > (PBT と fuzzing のカテゴリ分離、crate 構成) は
 > [リポジトリトップの README](../../README.md) を参照。fuzzing 利用は
-> 別カテゴリの [`testrs-fuzz`](../fuzz/README.md) を使う。
+> 別カテゴリの [`gnrs-test-fuzz`](../fuzz/README.md) を使う。
 
-通常は `testrs-pbt` だけで足りる。共有基盤 `testrs-core` と派生マクロ
-`testrs-pbt-derive` の内容をすべて再エクスポートしている。
+通常は `gnrs-test-pbt` だけで足りる。共有基盤 `gnrs-test-core` と派生マクロ
+`gnrs-test-pbt-derive` の内容をすべて再エクスポートしている。
 
 ```toml
 [dev-dependencies]
-testrs-pbt = { git = "https://github.com/ginokent/testrs", package = "testrs-pbt" }
+gnrs-test-pbt = { git = "https://github.com/ginokent/gnrs-test", package = "gnrs-test-pbt" }
 ```
 
 ## クイックスタート
 
 ```rust
-use testrs_pbt::{pbt, prop_assert_eq};
+use gnrs_test_pbt::{pbt, prop_assert_eq};
 
 #[pbt]
 fn addition_is_commutative(a: i32, b: i32) {
@@ -36,20 +36,20 @@ fn stress_test(v: Vec<u32>) {
 
 `cargo test` でプロパティをデフォルト 100 回実行する。失敗時は
 ランナーが入力を最小反例まで shrink し、assertion の両辺を表示し、
-再現用の `TESTRS_PBT_SEED` を出力する。同じ seed は
-`target/testrs-pbt-regressions/<test>.txt` に追記され、次回ラン冒頭で
+再現用の `GNRS_TEST_PBT_SEED` を出力する。同じ seed は
+`target/gnrs-test-pbt-regressions/<test>.txt` に追記され、次回ラン冒頭で
 自動再生される。
 
 ## 同梱機能
 
 | 機能                                       | 場所                                                |
 |--------------------------------------------|-----------------------------------------------------|
-| `#[derive(Arbitrary)]` (struct & enum)     | `testrs_pbt::Arbitrary` (マクロ名前空間)            |
+| `#[derive(Arbitrary)]` (struct & enum)     | `gnrs_test_pbt::Arbitrary` (マクロ名前空間)            |
 | `#[arbitrary(strategy = ...)]`             | derive のフィールド単位 strategy 上書き             |
-| `#[pbt]` 属性                              | `testrs_pbt::pbt`                                   |
+| `#[pbt]` 属性                              | `gnrs_test_pbt::pbt`                                   |
 | `#[pbt(cases = N, seed = N, ..)]`          | 同上、`key = literal` 引数付き                      |
 | `#[pbt] async fn ...`                      | 組み込み `block_on` を使う — ランタイム不要         |
-| `prop_assert!{,_eq,_ne,_matches,_close}!`  | `testrs_pbt::prop_assert*!`                         |
+| `prop_assert!{,_eq,_ne,_matches,_close}!`  | `gnrs_test_pbt::prop_assert*!`                         |
 | `prop_assert_panic!` / `prop_assert_no_panic!` | 式が panic する / しないことを表明                  |
 | `forall!`                                  | `forall` の変数バインド構文シュガー                 |
 | `prop_assume!` / `prop_skip!`              | 不適切な入力 / 不適切な環境を切り分け               |
@@ -59,12 +59,12 @@ fn stress_test(v: Vec<u32>) {
 | `prop_oneof!` / `prop_compose!`            | Strategy combinator マクロ                         |
 | `prop_recursive!` / `prop_filter!`         | 再帰木 / フィルタ付き strategy                      |
 | `Strategy::flat_map`                       | 依存生成                                            |
-| Strategy combinator                      | `testrs_pbt::strategy::*` (`.sample(n)` / `.no_shrink()` 含む) |
-| 文字列 generator                         | `testrs_pbt::strategy::str::*` (ascii, hex, …)      |
-| ドメイン strategy パック                 | `testrs_pbt::strategy::domain::*` (`email_like` / `url_like` / `uuid_like` / `ipv4_dotted` / `iso8601_date`) |
-| `char_range` / `bytes` / `f64_range`       | `testrs_pbt::strategy::{char_range, bytes, f32_range, f64_range}` |
-| 状態機械テスト                             | `testrs_pbt::state_machine::run_state_machine`      |
-| Differential テスト                        | `testrs_pbt::{differential, differential_with}`     |
+| Strategy combinator                      | `gnrs_test_pbt::strategy::*` (`.sample(n)` / `.no_shrink()` 含む) |
+| 文字列 generator                         | `gnrs_test_pbt::strategy::str::*` (ascii, hex, …)      |
+| ドメイン strategy パック                 | `gnrs_test_pbt::strategy::domain::*` (`email_like` / `url_like` / `uuid_like` / `ipv4_dotted` / `iso8601_date`) |
+| `char_range` / `bytes` / `f64_range`       | `gnrs_test_pbt::strategy::{char_range, bytes, f32_range, f64_range}` |
+| 状態機械テスト                             | `gnrs_test_pbt::state_machine::run_state_machine`      |
+| Differential テスト                        | `gnrs_test_pbt::{differential, differential_with}`     |
 | Greedy / Exhaustive shrink                 | `Config::shrink_mode`                               |
 | Regression 自動再生                        | デフォルト ON。`Config::regression_replay` で切替   |
 | Outcome accessor                           | `.is_passed()`, `.failure_message()`, `.shrunk()`, … |
@@ -74,7 +74,7 @@ fn stress_test(v: Vec<u32>) {
 ### 1. serializer のラウンドトリップ
 
 ```rust
-use testrs_pbt::{pbt, prop_assert_eq, Arbitrary};
+use gnrs_test_pbt::{pbt, prop_assert_eq, Arbitrary};
 
 #[derive(Arbitrary, Debug, Clone, PartialEq)]
 struct Config {
@@ -97,7 +97,7 @@ fn config_round_trips(c: Config) {
 ### 2. ソートを仕様に対してテスト
 
 ```rust
-use testrs_pbt::{pbt, prop_assert};
+use gnrs_test_pbt::{pbt, prop_assert};
 
 #[pbt]
 fn sort_is_sorted(mut v: Vec<i32>) {
@@ -113,14 +113,14 @@ fn sort_is_idempotent(v: Vec<i32>) {
     once.sort();
     let mut twice = once.clone();
     twice.sort();
-    testrs_pbt::prop_assert_eq!(once, twice);
+    gnrs_test_pbt::prop_assert_eq!(once, twice);
 }
 ```
 
 ### 3. 前提条件付きプロパティ
 
 ```rust
-use testrs_pbt::{pbt, prop_assume, prop_assert};
+use gnrs_test_pbt::{pbt, prop_assume, prop_assert};
 
 #[pbt]
 fn binary_search_finds_existing(v: Vec<u32>, idx: usize) {
@@ -141,8 +141,8 @@ fn binary_search_finds_existing(v: Vec<u32>, idx: usize) {
 ### 4. `Strategy` で生成値を制約する
 
 ```rust
-use testrs_pbt::{run_strategy, prop_assert};
-use testrs_pbt::strategy::{int_range, vec_of, StrategyExt};
+use gnrs_test_pbt::{run_strategy, prop_assert};
+use gnrs_test_pbt::strategy::{int_range, vec_of, StrategyExt};
 
 #[test]
 fn percentage_stays_in_range() {
@@ -155,7 +155,7 @@ fn percentage_stays_in_range() {
 }
 ```
 
-`testrs_pbt::strategy` で使える主な combinator:
+`gnrs_test_pbt::strategy` で使える主な combinator:
 
 - `any::<T>()` — `T::Arbitrary` に委譲
 - `just(v)` — 定数
@@ -171,7 +171,7 @@ fn percentage_stays_in_range() {
 ### 5. `classify!` で generator の分布を診断
 
 ```rust
-use testrs_pbt::{run, classify};
+use gnrs_test_pbt::{run, classify};
 
 run("sort handles every input", |v: &Vec<i32>| {
     classify!(v.is_empty(), "empty");
@@ -194,8 +194,8 @@ run("sort handles every input", |v: &Vec<i32>| {
 ### 6. 状態機械 / モデルベーステスト
 
 ```rust
-use testrs_pbt::state_machine::{run_state_machine, StateMachine};
-use testrs_pbt::{Arbitrary, Config};
+use gnrs_test_pbt::state_machine::{run_state_machine, StateMachine};
+use gnrs_test_pbt::{Arbitrary, Config};
 
 #[derive(Arbitrary, Debug, Clone)]
 enum Op {
@@ -234,7 +234,7 @@ fn vec_matches_reference() {
 ### 7. Async プロパティテスト
 
 ```rust
-use testrs_pbt::{pbt, prop_assert_eq};
+use gnrs_test_pbt::{pbt, prop_assert_eq};
 
 #[pbt]
 async fn http_parse_round_trips(req: Request) -> Result<(), Error> {
@@ -246,7 +246,7 @@ async fn http_parse_round_trips(req: Request) -> Result<(), Error> {
 ```
 
 属性マクロは `async fn` を検出し、本体を組み込みのシングルスレッド
-executor (`testrs_pbt::block_on`) で駆動する。tokio や async-std
+executor (`gnrs_test_pbt::block_on`) で駆動する。tokio や async-std
 への依存は導入されない。組み込み executor は実 I/O はサポート
 しない — tokio コードを使うなら、`tokio::runtime::Runtime::new()?.block_on(...)`
 を呼ぶ非 async なラッパを書くこと。
@@ -254,7 +254,7 @@ executor (`testrs_pbt::block_on`) で駆動する。tokio や async-std
 ### 8. Differential テスト
 
 ```rust
-testrs_pbt::differential(
+gnrs_test_pbt::differential(
     "fast_sort matches slow_sort",
     |v: &Vec<i32>| slow_sort(v),
     |v: &Vec<i32>| fast_sort(v),
@@ -266,8 +266,8 @@ testrs_pbt::differential(
 ### 9. `#[derive(Arbitrary)]` をフィールド単位で制約
 
 ```rust
-use testrs_pbt::{Arbitrary, pbt, prop_assert};
-use testrs_pbt::strategy::{int_range, str, vec_of};
+use gnrs_test_pbt::{Arbitrary, pbt, prop_assert};
+use gnrs_test_pbt::strategy::{int_range, str, vec_of};
 
 #[derive(Arbitrary, Debug, Clone)]
 struct Request {
@@ -290,14 +290,14 @@ fn request_is_valid(r: Request) {
 文字列リテラル形式 `"expr"` (proptest スタイル) と裸の式形式の
 両方をサポート。strategy 式は `#[derive]` を書いた場所から見えて
 いる必要がある (典型的にはファイル冒頭に
-`use testrs_pbt::strategy::*;`)。フィールド単位の shrink も strategy
+`use gnrs_test_pbt::strategy::*;`)。フィールド単位の shrink も strategy
 を通る — 上の例では `port` フィールドは `1024` まで縮むが
 それを下回ることはない。
 
 ### 10. `flat_map` による依存生成
 
 ```rust
-use testrs_pbt::strategy::{any, int_range, vec_of, StrategyExt};
+use gnrs_test_pbt::strategy::{any, int_range, vec_of, StrategyExt};
 // まず長さを決め、その後にちょうどその長さの Vec を生成:
 let s = int_range(1usize..10).flat_map(|len| vec_of(any::<i32>(), len..len + 1));
 ```
@@ -305,10 +305,10 @@ let s = int_range(1usize..10).flat_map(|len| vec_of(any::<i32>(), len..len + 1))
 ### 11. `prop_recursive!` による再帰データ
 
 ```rust
-use testrs_pbt::{prop_oneof, prop_recursive};
-use testrs_pbt::strategy::{any, just, vec_of, StrategyExt};
+use gnrs_test_pbt::{prop_oneof, prop_recursive};
+use gnrs_test_pbt::strategy::{any, just, vec_of, StrategyExt};
 
-#[derive(testrs_pbt::Arbitrary, Debug, Clone)]
+#[derive(gnrs_test_pbt::Arbitrary, Debug, Clone)]
 enum Json { Null, Bool(bool), Num(i32), Array(Vec<Json>) }
 
 let json = prop_recursive! {
@@ -329,7 +329,7 @@ let json = prop_recursive! {
 ### 12. 浮動小数点の近似比較
 
 ```rust
-use testrs_pbt::{pbt, prop_assert_close, prop_assume};
+use gnrs_test_pbt::{pbt, prop_assert_close, prop_assume};
 #[pbt]
 fn double_angle_identity(x: f64) {
     prop_assume!(x.is_finite() && x.abs() < 1e6);
@@ -340,8 +340,8 @@ fn double_angle_identity(x: f64) {
 ### 13. ドメイン strategy で parser を叩く
 
 ```rust
-use testrs_pbt::run_strategy;
-use testrs_pbt::strategy::domain;
+use gnrs_test_pbt::run_strategy;
+use gnrs_test_pbt::strategy::domain;
 
 #[test]
 fn url_parser_handles_arbitrary_urls() {
@@ -383,7 +383,7 @@ fn uuid_parser_does_not_panic() {
 ### 14. `Strategy::sample(n)` でデバッグ確認
 
 ```rust
-use testrs_pbt::strategy::{domain, int_range, vec_of, StrategyExt};
+use gnrs_test_pbt::strategy::{domain, int_range, vec_of, StrategyExt};
 
 // テストを書かずに strategy の生成例を覗き見る。固定 seed のため
 // 何度呼んでも同じ列が返り、Diff 検証にも使える。
@@ -403,8 +403,8 @@ assert_eq!(s.sample(3).len(), 3);
 ### 15. `Strategy::no_shrink()` で shrink を抑制
 
 ```rust
-use testrs_pbt::run_strategy;
-use testrs_pbt::strategy::{any, vec_of, StrategyExt};
+use gnrs_test_pbt::run_strategy;
+use gnrs_test_pbt::strategy::{any, vec_of, StrategyExt};
 
 // 16 byte 固定長の鍵を生成。shrink すると鍵長が崩れて別 panic に化けるため
 // no_shrink で停止し、最初の反例をそのまま観察する。
@@ -429,7 +429,7 @@ run_strategy("aes round trip", key_strategy, |k: &Vec<u8>| {
 失敗時は seed が出力される:
 
 ```
-[testrs-pbt] my_test FAILED at case #4 (TESTRS_PBT_SEED=12345, 0 discarded)
+[gnrs-test-pbt] my_test FAILED at case #4 (GNRS_TEST_PBT_SEED=12345, 0 discarded)
   reason:   prop_assert_eq! failed at src/lib.rs:42
             left:  42
             right: 43
@@ -440,10 +440,10 @@ run_strategy("aes round trip", key_strategy, |k: &Vec<u8>| {
 再現方法は 3 通り:
 
 1. **自動** — 失敗 seed は
-   `target/testrs-pbt-regressions/<test>.txt` に追記され、次回ラン
+   `target/gnrs-test-pbt-regressions/<test>.txt` に追記され、次回ラン
    冒頭で再生される。手動操作は不要 — `cargo test` を再実行する
    だけ。
-2. **環境変数** — `TESTRS_PBT_SEED=12345 cargo test my_test`。
+2. **環境変数** — `GNRS_TEST_PBT_SEED=12345 cargo test my_test`。
 3. **Config 上書き** — テスト関数に `#[pbt(seed = 12345)]`、
    または `run_with` 用に `Config { seed: 12345, ..Config::default() }`。
 
@@ -453,7 +453,7 @@ run_strategy("aes round trip", key_strategy, |k: &Vec<u8>| {
 `run_with` を使う:
 
 ```rust
-use testrs_pbt::{run_with, Config};
+use gnrs_test_pbt::{run_with, Config};
 
 run_with(
     "stress test",
@@ -507,9 +507,9 @@ run_with(
 ## テストスイートの実行
 
 ```
-cargo test -p testrs-pbt
-cargo run --example sort_props   -p testrs-pbt
-cargo run --example derive_demo  -p testrs-pbt   # 失敗するプロパティをデモ
+cargo test -p gnrs-test-pbt
+cargo run --example sort_props   -p gnrs-test-pbt
+cargo run --example derive_demo  -p gnrs-test-pbt   # 失敗するプロパティをデモ
 ```
 
 ## Contributing

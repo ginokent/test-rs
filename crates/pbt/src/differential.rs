@@ -16,7 +16,7 @@ use crate::{prop_assert_eq, run_with, Arbitrary, Config};
 /// ```ignore
 /// fn slow_sort(v: &Vec<i32>) -> Vec<i32> { /* ... */ }
 /// fn fast_sort(v: &Vec<i32>) -> Vec<i32> { /* ... */ }
-/// testrs_pbt::differential("sort agrees", &slow_sort, &fast_sort);
+/// gnrs_test_pbt::differential("sort agrees", &slow_sort, &fast_sort);
 /// ```
 pub fn differential<I, O, F, G>(name: &str, lhs: F, rhs: G)
 where

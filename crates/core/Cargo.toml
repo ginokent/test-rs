@@ -1,5 +1,5 @@
 [package]
-name = "testrs-core"
+name = "gnrs-test-core"
 version.workspace = true
 edition.workspace = true
 license.workspace = true

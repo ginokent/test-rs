@@ -1,32 +1,32 @@
-# testrs-fuzz
+# gnrs-test-fuzz
 
 任意入力に対するクラッシュ耐性 (panic 安全性) を叩くための、
 in-process な mutation 駆動 fuzzer。バイト指向のターゲットが panic
 するまで変異入力を実行する。**外部依存ゼロ** — 共有基盤
-`testrs-core` のみに依存する。
+`gnrs-test-core` のみに依存する。
 
-> ワークスペース **testrs** を構成する一 crate。リポジトリ全体の俯瞰
+> ワークスペース **gnrs-test** を構成する一 crate。リポジトリ全体の俯瞰
 > (PBT と fuzzing のカテゴリ分離、crate 構成) は
 > [リポジトリトップの README](../../README.md) を参照。
 >
-> **fuzzing は PBT の一部ではなく別カテゴリ**である。`testrs-fuzz` は
-> 共有基盤 `testrs-core` のみに依存し、PBT ランナー
-> [`testrs-pbt`](../pbt/README.md) には依存しない。入力を生成して
-> 不変条件を検証したい場合は `testrs-pbt` を使うこと。
+> **fuzzing は PBT の一部ではなく別カテゴリ**である。`gnrs-test-fuzz` は
+> 共有基盤 `gnrs-test-core` のみに依存し、PBT ランナー
+> [`gnrs-test-pbt`](../pbt/README.md) には依存しない。入力を生成して
+> 不変条件を検証したい場合は `gnrs-test-pbt` を使うこと。
 
 ```toml
 [dev-dependencies]
-testrs-fuzz = { git = "https://github.com/ginokent/testrs", package = "testrs-fuzz" }
+gnrs-test-fuzz = { git = "https://github.com/ginokent/gnrs-test", package = "gnrs-test-fuzz" }
 ```
 
 `fuzz_typed` に独自型を渡す場合、`#[derive(Arbitrary)]` の生成コードが
-PBT facade `testrs-pbt` を参照するため `testrs-pbt` も dev-dependency に
+PBT facade `gnrs-test-pbt` を参照するため `gnrs-test-pbt` も dev-dependency に
 追加する。
 
 ## クイックスタート
 
 ```rust
-use testrs_fuzz::{fuzz, FuzzConfig};
+use gnrs_test_fuzz::{fuzz, FuzzConfig};
 
 #[test]
 fn parser_does_not_panic() {
@@ -44,8 +44,8 @@ mutator はバイト seed 上で変異を加えながらターゲットを繰り
 
 | 機能                                       | 場所                                                |
 |--------------------------------------------|-----------------------------------------------------|
-| mutation・バイト fuzzer           | `testrs_fuzz::fuzz`                                 |
-| 型付き fuzzer (`Arbitrary` 駆動)          | `testrs_fuzz::fuzz_typed`                           |
+| mutation・バイト fuzzer           | `gnrs_test_fuzz::fuzz`                                 |
+| 型付き fuzzer (`Arbitrary` 駆動)          | `gnrs_test_fuzz::fuzz_typed`                           |
 | Fuzz dictionary                            | `FuzzConfig::dictionary`                            |
 | Crash 後継続 + 重複排除                    | `FuzzConfig::{continue_after_crash, dedup_by_message}` |
 | corpus / crash 永続化                    | `FuzzConfig::{corpus_dir, crash_dir}`               |
@@ -55,7 +55,7 @@ mutator はバイト seed 上で変異を加えながらターゲットを繰り
 ### 1. バイト指向ターゲットをファズ
 
 ```rust
-use testrs_fuzz::{fuzz, FuzzConfig};
+use gnrs_test_fuzz::{fuzz, FuzzConfig};
 
 #[test]
 fn parser_does_not_panic() {
@@ -69,7 +69,7 @@ fn parser_does_not_panic() {
 ### 2. 型付き API をファズ
 
 ```rust
-use testrs_fuzz::{fuzz_typed, TypedFuzzConfig};
+use gnrs_test_fuzz::{fuzz_typed, TypedFuzzConfig};
 
 #[test]
 fn json_query_never_panics() {
@@ -87,7 +87,7 @@ decoder 無しで多様な入力を探索する。
 ### 3. ファズランから全 distinct crash を回収
 
 ```rust
-use testrs_fuzz::{fuzz, FuzzConfig};
+use gnrs_test_fuzz::{fuzz, FuzzConfig};
 use std::path::PathBuf;
 
 let report = fuzz(
@@ -115,10 +115,10 @@ for f in &report.failures {
 ## 失敗の再現
 
 fuzzer は PBT ランナーと同じ仕組みで再現用 seed を扱い、環境変数
-`TESTRS_FUZZ_SEED` で固定できる:
+`GNRS_TEST_FUZZ_SEED` で固定できる:
 
 ```
-TESTRS_FUZZ_SEED=12345 cargo test parser_does_not_panic
+GNRS_TEST_FUZZ_SEED=12345 cargo test parser_does_not_panic
 ```
 
 ## 制約
@@ -137,8 +137,8 @@ TESTRS_FUZZ_SEED=12345 cargo test parser_does_not_panic
 ## テストスイートの実行
 
 ```
-cargo test -p testrs-fuzz
-cargo run --release --example find_crash -p testrs-fuzz   # 意図的に panic するデモ
+cargo test -p gnrs-test-fuzz
+cargo run --release --example find_crash -p gnrs-test-fuzz   # 意図的に panic するデモ
 ```
 
 > `find_crash` example は意図的に panic するデモであり、CI / test job には

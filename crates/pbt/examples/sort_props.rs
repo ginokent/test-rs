@@ -1,8 +1,8 @@
 //! 標準ライブラリの sort に対する複数の不変条件をプロパティベーステストで
-//! 検証する例を示します。`cargo run --example sort_props -p testrs-pbt`で
+//! 検証する例を示します。`cargo run --example sort_props -p gnrs-test-pbt`で
 //! 実行してください。
 
-use testrs_pbt::run;
+use gnrs_test_pbt::run;
 
 fn main() {
     run("sort is idempotent", |v: &Vec<i32>| {

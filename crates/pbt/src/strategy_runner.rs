@@ -3,8 +3,8 @@
 
 use std::fmt::Debug;
 
-use testrs_core::strategy::Strategy;
-use testrs_core::XorShift64;
+use gnrs_test_core::strategy::Strategy;
+use gnrs_test_core::XorShift64;
 
 use crate::classify::{self, Classifications};
 use crate::panic_hook::SilentPanicHook;
@@ -72,7 +72,7 @@ where
             if skipped > 0 {
                 extra.push_str(&format!(", {skipped} skipped"));
             }
-            eprintln!("[testrs-pbt] {name}: ok ({cases} cases{extra}, seed={seed})");
+            eprintln!("[gnrs-test-pbt] {name}: ok ({cases} cases{extra}, seed={seed})");
             if !classifications.is_empty() {
                 eprint!("  classifications:\n{}", classifications.render());
             }
@@ -93,7 +93,7 @@ where
                 format!("\n  classifications:\n{}", classifications.render())
             };
             panic!(
-                "[testrs-pbt] {name} FAILED at case #{attempt} (TESTRS_PBT_SEED={seed}, {discarded} discarded, {skipped} skipped)\n  \
+                "[gnrs-test-pbt] {name} FAILED at case #{attempt} (GNRS_TEST_PBT_SEED={seed}, {discarded} discarded, {skipped} skipped)\n  \
                  reason:   {message}\n  \
                  original: {original:?}\n  \
                  shrunk:   {shrunk:?}{cpart}"
@@ -113,7 +113,7 @@ where
                 format!("\n  classifications:\n{}", classifications.render())
             };
             panic!(
-                "[testrs-pbt] {name} ABORTED (seed={seed})\n  reason: {reason}\n  cases ran: {cases}, discarded: {discarded}, skipped: {skipped}{cpart}"
+                "[gnrs-test-pbt] {name} ABORTED (seed={seed})\n  reason: {reason}\n  cases ran: {cases}, discarded: {discarded}, skipped: {skipped}{cpart}"
             );
         }
     }
@@ -221,7 +221,7 @@ where
     }
 }
 
-/// 可変長のサブ strategy のリストから [`one_of`](testrs_core::strategy::one_of)
+/// 可変長のサブ strategy のリストから [`one_of`](gnrs_test_core::strategy::one_of)
 /// strategy を構築します。それぞれを自動的にボックス化するため、異なる具象型を
 /// 持つことができます。
 ///
@@ -247,10 +247,10 @@ macro_rules! prop_oneof {
 /// strategy を構築します。木、AST、JSON 風の値に便利です。
 ///
 /// ```ignore
-/// use testrs_pbt::{prop_recursive, prop_oneof};
-/// use testrs_pbt::strategy::{any, just, vec_of, StrategyExt};
+/// use gnrs_test_pbt::{prop_recursive, prop_oneof};
+/// use gnrs_test_pbt::strategy::{any, just, vec_of, StrategyExt};
 ///
-/// #[derive(testrs_pbt::Arbitrary, Debug, Clone)]
+/// #[derive(gnrs_test_pbt::Arbitrary, Debug, Clone)]
 /// enum Json { Null, Bool(bool), Num(i32), Array(Vec<Json>) }
 ///
 /// let s = prop_recursive! {
@@ -308,8 +308,8 @@ macro_rules! prop_filter {
 /// 返す関数を定義します。
 ///
 /// ```ignore
-/// use testrs_pbt::strategy::str;
-/// testrs_pbt::prop_compose! {
+/// use gnrs_test_pbt::strategy::str;
+/// gnrs_test_pbt::prop_compose! {
 ///     pub fn valid_user()(
 ///         name in str::ascii_alphanumeric(1..20),
 ///         age in 18u8..100,
@@ -359,17 +359,17 @@ pub struct __ComposedStrategy<T> {
 
 #[doc(hidden)]
 pub type ComposedBuilder<T> =
-    std::sync::Arc<dyn Fn(&mut dyn testrs_core::Rng, usize) -> T + Send + Sync>;
+    std::sync::Arc<dyn Fn(&mut dyn gnrs_test_core::Rng, usize) -> T + Send + Sync>;
 
-impl<T: Clone + std::fmt::Debug + 'static> testrs_core::Strategy for __ComposedStrategy<T> {
+impl<T: Clone + std::fmt::Debug + 'static> gnrs_test_core::Strategy for __ComposedStrategy<T> {
     type Value = T;
-    fn new_value<R: testrs_core::Rng + ?Sized>(&self, rng: &mut R, size: usize) -> T {
+    fn new_value<R: gnrs_test_core::Rng + ?Sized>(&self, rng: &mut R, size: usize) -> T {
         // BoxedStrategy と同じ sized ラッパーのトリックを使用します。
         // `&mut dyn Rng` に強制変換できるよう rng をラップします。
-        struct W<'a, R: testrs_core::Rng + ?Sized> {
+        struct W<'a, R: gnrs_test_core::Rng + ?Sized> {
             inner: &'a mut R,
         }
-        impl<R: testrs_core::Rng + ?Sized> testrs_core::Rng for W<'_, R> {
+        impl<R: gnrs_test_core::Rng + ?Sized> gnrs_test_core::Rng for W<'_, R> {
             fn next_u64(&mut self) -> u64 {
                 self.inner.next_u64()
             }
@@ -385,7 +385,7 @@ impl<T: Clone + std::fmt::Debug + 'static> testrs_core::Strategy for __ComposedS
 #[cfg(test)]
 mod tests {
     use super::*;
-    use testrs_core::strategy::{int_range, just};
+    use gnrs_test_core::strategy::{int_range, just};
 
     fn cfg(seed: u64) -> Config {
         Config {

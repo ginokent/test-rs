@@ -1,6 +1,6 @@
 # Contributing
 
-testrs への貢献ガイド。**開発手順** (mise install / mise run ci の
+gnrs-test への貢献ガイド。**開発手順** (mise install / mise run ci の
 使い方)、**設計判断とトレードオフ** (特に `ci-publish-status-dangerously` の
 危険性)、リポ局所の規約を集約する。
 
@@ -193,9 +193,9 @@ fine-grained で個別に設定できる。
 | ファイル | 役割 |
 |---|---|
 | [`README.md`](README.md) | リポジトリ全体の俯瞰 (crate 構成、カテゴリ分離、設計原則、各 crate README への導線) |
-| [`crates/pbt/README.md`](crates/pbt/README.md) | PBT (`testrs-pbt`) の利用方法・API パターン集・機能一覧 |
-| [`crates/fuzz/README.md`](crates/fuzz/README.md) | fuzzing (`testrs-fuzz`) の利用方法・API パターン集・機能一覧 |
-| [`crates/bench/README.md`](crates/bench/README.md) | benchmarking (`testrs-bench`) の利用方法・API パターン集・機能一覧 |
+| [`crates/pbt/README.md`](crates/pbt/README.md) | PBT (`gnrs-test-pbt`) の利用方法・API パターン集・機能一覧 |
+| [`crates/fuzz/README.md`](crates/fuzz/README.md) | fuzzing (`gnrs-test-fuzz`) の利用方法・API パターン集・機能一覧 |
+| [`crates/bench/README.md`](crates/bench/README.md) | benchmarking (`gnrs-test-bench`) の利用方法・API パターン集・機能一覧 |
 | [`SPEC.md`](SPEC.md) | プロジェクトの大方針設計 (依存方針 / Toolchain pin / Workspace 構成等) |
 | [`CLAUDE.md`](CLAUDE.md) | エージェント (Claude Code 等) への局所行動指針、リポ固有の落とし穴 |
 | `CONTRIBUTING.md` (本ファイル) | 開発手順 (mise + scripts) と設計判断のトレードオフ (特に ci-publish-status-dangerously の危険性) |

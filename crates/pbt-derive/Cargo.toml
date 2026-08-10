@@ -1,5 +1,5 @@
 [package]
-name = "testrs-pbt-derive"
+name = "gnrs-test-pbt-derive"
 version.workspace = true
 edition.workspace = true
 license.workspace = true

@@ -5,7 +5,7 @@
 //! エスケープの境界値は parser を持たない以上ラウンドトリップ検証できないため、
 //! 代表ケースを個別に確認する (PBT ではなく単体テストが適切な領域)。
 
-use testrs_bench::{BenchResult, Statistics};
+use gnrs_test_bench::{BenchResult, Statistics};
 
 /// 計測を伴わずに決定的な BenchResult を構築する。
 fn sample_result(name: &str, bytes_per_iter: Option<u64>) -> BenchResult {

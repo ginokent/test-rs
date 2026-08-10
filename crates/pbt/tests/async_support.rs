@@ -1,6 +1,6 @@
 //! async fn プロパティサポートおよび`block_on`ヘルパーのテストです。
 
-use testrs_pbt::{block_on, prop_assert_eq};
+use gnrs_test_pbt::{block_on, prop_assert_eq};
 
 #[test]
 fn block_on_drives_simple_future() {
@@ -23,7 +23,7 @@ fn block_on_drives_nested_await() {
 
 // --- async fn に対する#[pbt] ----------------------------------------
 
-#[testrs_pbt::pbt]
+#[gnrs_test_pbt::pbt]
 async fn async_property_with_await(n: u32) {
     async fn identity(x: u32) -> u32 {
         x
@@ -32,13 +32,13 @@ async fn async_property_with_await(n: u32) {
     prop_assert_eq!(echoed, n);
 }
 
-#[testrs_pbt::pbt(cases = 50)]
+#[gnrs_test_pbt::pbt(cases = 50)]
 async fn async_property_with_attr_args(a: u16, b: u16) {
     // 属性引数 + async パスを動作確認するための自明なプロパティ。
     prop_assert_eq!(a as u32 + b as u32, (a as u32).wrapping_add(b as u32));
 }
 
-#[testrs_pbt::pbt]
+#[gnrs_test_pbt::pbt]
 async fn async_property_returning_result(s: String) -> Result<(), std::num::ParseIntError> {
     // s が数字文字列でないノイジーなケースはスキップし、それ以外の場合に
     // async コンテキストでの parse の往復変換を検証します。

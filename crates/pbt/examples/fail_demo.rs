@@ -1,7 +1,7 @@
 //! 失敗するプロパティと shrinking レポートを実演します。このプログラムは
 //! 最小化された反例とともに panic することが期待されます。
 
-use testrs_pbt::run;
+use gnrs_test_pbt::run;
 
 fn main() {
     // 意図的に偽のプロパティ: 「2つの u8の合計は型をオーバーフローしない」。

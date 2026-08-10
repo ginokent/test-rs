@@ -4,7 +4,7 @@
 - Created: 2026-08-11 04:02 JST
 - Model: Opus 5 (1M context)
 - Branch: `feature/breaking-change-rename-to-gnrs-test`
-- Status: **起票**。 未着手
+- Status: **実装完了・検証済み** (2026-08-11 04:15)。 残件は GitHub 改名 (ユーザー作業) / `git remote set-url` / 主要下流 repo の選定と追従 issue 起票 の 3 件
 - 起票経緯: ユーザー指示。 ginokent の自作 crate 群が `gnrs-*` prefix へ順次改名
   されており (`logrs` → `gnrs-log` / `httprs` → `gnrs-http` / `cryptors` →
   `gnrs-crypto` / `audiors` → `gnrs-audio` / `asyncrs` → `gnrs-async` /
@@ -135,19 +135,44 @@
 
 ## 完了条件
 
-- [ ] 5 crate の package 名を `gnrs-test-*` へ変更する
-- [ ] Rust 識別子 (`testrs_core` / `testrs_pbt` / `testrs_pbt_derive` / `testrs_fuzz` /
-      `testrs_bench`) を `gnrs_test_*` へ更新する
-- [ ] **環境変数名 `TESTRS_PBT_SEED` / `TESTRS_FUZZ_SEED` を `GNRS_TEST_*` へ更新する**
+- [x] 5 crate の package 名を `gnrs-test-*` へ変更する — `crates/core/Cargo.toml:2`
+      `gnrs-test-core` / `crates/pbt/Cargo.toml:2` `gnrs-test-pbt` /
+      `crates/pbt-derive/Cargo.toml:2` `gnrs-test-pbt-derive` /
+      `crates/fuzz/Cargo.toml:2` `gnrs-test-fuzz` / `crates/bench/Cargo.toml:2`
+      `gnrs-test-bench`
+- [x] Rust 識別子 (`testrs_core` / `testrs_pbt` / `testrs_pbt_derive` / `testrs_fuzz` /
+      `testrs_bench`) を `gnrs_test_*` へ更新する — 段 4-8 で
+      `testrs_pbt_derive` 2 件 → `testrs_pbt` 158 件 → `testrs_core` 20 件 →
+      `testrs_fuzz` 10 件 → `testrs_bench` 26 件 の順に置換 (`-derive` を先に処理)
+- [x] **環境変数名 `TESTRS_PBT_SEED` / `TESTRS_FUZZ_SEED` を `GNRS_TEST_*` へ更新する**
       (`env::var` の呼び出し / エラーメッセージ / README の再現手順すべて)
-- [ ] **`__TestrsPbtT` を `__GnrsTestPbtT` へ更新する** (大文字始まりの取りこぼし対策)
-- [ ] `repository` URL (`Cargo.toml:15`) と README 群の git 依存例を新 URL へ更新する
-- [ ] 散文 (`CLAUDE.md` / `SPEC.md` / `README.md` / `CONTRIBUTING.md` / `deny.toml` /
+      — 段 1 で 12 件 / 段 2 で 6 件。 `crates/pbt/src/lib.rs:206`
+      `env::var("GNRS_TEST_PBT_SEED")` / `crates/fuzz/src/lib.rs:105`
+      `env::var("GNRS_TEST_FUZZ_SEED")` を実測で確認。 大文字形の残存は **0 件**
+- [x] **`__TestrsPbtT` を `__GnrsTestPbtT` へ更新する** (大文字始まりの取りこぼし対策)
+      — `crates/pbt-derive/src/lib.rs:623` が
+      `"fn __gnrs_test_pbt_assert_arbitrary<__GnrsTestPbtT: ::gnrs_test_pbt::Arbitrary + ?Sized>() {}"`
+      になり、 **同一文字列リテラル内の 3 つの識別子すべて** が正しく置換された
+      (小文字 2 つは段 5、 大文字始まり 1 つは段 3)。 `Testrs` の残存は **0 件**
+- [x] `repository` URL (`Cargo.toml:15`) と README 群の git 依存例を新 URL へ更新する
+      — 段 14 で `ginokent/testrs` 7 件。 `Cargo.toml:15` が
+      `repository = "https://github.com/ginokent/gnrs-test"`
+- [x] 散文 (`CLAUDE.md` / `SPEC.md` / `README.md` / `CONTRIBUTING.md` / `deny.toml` /
       `.github/` / 各 crate の `README.md` と `description`) を `gnrs-test` 系へ更新する
-- [ ] `git grep` で `testrs` の残存が除外対象のみであることを確認する
-- [ ] CI 相当の 5 leg (fmt / clippy / doc / test / deny) が緑になる。 **`test` leg で
+      — 段 9-13 で package 名形 (`testrs-pbt-derive` 14 / `testrs-pbt` 68 /
+      `testrs-core` 29 / `testrs-fuzz` 26 / `testrs-bench` 23 件)、 段 15 で残る
+      bare 19 箇所
+- [x] `git grep` で `testrs` の残存が除外対象のみであることを確認する
+      — case-insensitive で除外対象外の残存 **0 件**
+- [x] CI 相当の 5 leg (fmt / clippy / doc / test / deny) が緑になる。 **`test` leg で
       proc-macro (`gnrs-test-pbt-derive`) が生成するコードがコンパイルできること**を
-      段 3 / 段 4 の検証手段として明示的に確認する
+      段 3 / 段 4 の検証手段として明示的に確認する — 5 leg すべて EXIT=0。
+      `test` leg で **`examples/derive_demo.rs` がコンパイル・実行され**、
+      `Running unittests src/lib.rs (target/debug/deps/gnrs_test_pbt_derive-...)` が
+      3 passed、 `Doc-tests gnrs_test_pbt_derive` も通った。 計 29 個の
+      `test result: ok`。 **これが段 3 (`__GnrsTestPbtT`) と段 4 の順序が正しかった
+      ことの実証** — 取りこぼしていれば derive を使う test がコンパイルエラーになる。
+      改名で `use` の並び順・行幅が変わった 51 ファイルは `cargo fmt --all` で再整形
 - [ ] GitHub リポジトリ名を `gnrs-test` へ変更する (**ユーザーが GitHub UI で実施**)
 - [ ] `git remote set-url` を新 URL へ更新し `git ls-remote` で疎通確認する
 - [ ] 主要下流 repo の選定をユーザーと相談し、 対象 repo に追従 issue を起票する

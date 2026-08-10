@@ -1,7 +1,7 @@
 //! 仕込まれたバグのある parser ーに対して fuzzer を実行する小さなデモです。
-//! `cargo run --release --example find_crash -p testrs-fuzz` で実行します。
+//! `cargo run --release --example find_crash -p gnrs-test-fuzz` で実行します。
 
-use testrs_fuzz::{fuzz, FuzzConfig};
+use gnrs_test_fuzz::{fuzz, FuzzConfig};
 
 /// 「本物の」parser ーの代わりとして、マジックバイト 0xCC を含む任意の入力で
 /// panic します。カバレッジフィードバックがないため、fuzzer は生のランダム
@@ -32,7 +32,7 @@ fn main() {
     let report = fuzz(cfg, parser);
 
     println!(
-        "ran {} iterations, seed = {} (set TESTRS_FUZZ_SEED={} to reproduce)",
+        "ran {} iterations, seed = {} (set GNRS_TEST_FUZZ_SEED={} to reproduce)",
         report.iterations, report.seed, report.seed
     );
     if report.failures.is_empty() {

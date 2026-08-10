@@ -3,8 +3,8 @@
 //! 文字列リテラル形式と素の式形式の両方を動作確認し、加えて strategy 越しの
 //! shrink も検証します。
 
-use testrs_pbt::strategy::{int_range, str, vec_of, Strategy, StrategyExt};
-use testrs_pbt::{forall_with, run, Arbitrary, Config, XorShift64};
+use gnrs_test_pbt::strategy::{int_range, str, vec_of, Strategy, StrategyExt};
+use gnrs_test_pbt::{forall_with, run, Arbitrary, Config, XorShift64};
 
 fn cfg(seed: u64) -> Config {
     Config {
@@ -31,9 +31,9 @@ struct ConfigStr {
 #[test]
 fn string_literal_strategy_constrains_field_values() {
     run("config string-strategy", |c: &ConfigStr| {
-        testrs_pbt::prop_assert!(!c.name.is_empty());
-        testrs_pbt::prop_assert!(c.name.chars().all(|c| c.is_ascii_alphanumeric()));
-        testrs_pbt::prop_assert!(c.port >= 1024);
+        gnrs_test_pbt::prop_assert!(!c.name.is_empty());
+        gnrs_test_pbt::prop_assert!(c.name.chars().all(|c| c.is_ascii_alphanumeric()));
+        gnrs_test_pbt::prop_assert!(c.port >= 1024);
         // body は制約なし。Vec であることだけを確認します。
         let _ = c.body.len();
         true
@@ -53,9 +53,9 @@ struct ConfigExpr {
 #[test]
 fn bare_expression_strategy_works() {
     run("config bare-expr", |c: &ConfigExpr| {
-        testrs_pbt::prop_assert!(c.user.len() >= 3 && c.user.len() < 10);
-        testrs_pbt::prop_assert!(c.user.chars().all(|c| c.is_ascii_lowercase()));
-        testrs_pbt::prop_assert!(c.age >= 1 && c.age < 100);
+        gnrs_test_pbt::prop_assert!(c.user.len() >= 3 && c.user.len() < 10);
+        gnrs_test_pbt::prop_assert!(c.user.chars().all(|c| c.is_ascii_lowercase()));
+        gnrs_test_pbt::prop_assert!(c.age >= 1 && c.age < 100);
         true
     });
 }
@@ -95,12 +95,12 @@ fn enum_variant_field_attrs_constrain_payload() {
     run("message variants", |m: &Message| match m {
         Message::Heartbeat => true,
         Message::Text { content } => {
-            testrs_pbt::prop_assert!(!content.is_empty() && content.len() < 20);
-            testrs_pbt::prop_assert!(content.chars().all(|c| c.is_ascii() && !c.is_control()));
+            gnrs_test_pbt::prop_assert!(!content.is_empty() && content.len() < 20);
+            gnrs_test_pbt::prop_assert!(content.chars().all(|c| c.is_ascii() && !c.is_control()));
             true
         }
         Message::Code(c) => {
-            testrs_pbt::prop_assert!(*c >= 100 && *c < 600);
+            gnrs_test_pbt::prop_assert!(*c >= 100 && *c < 600);
             true
         }
     });
@@ -142,8 +142,8 @@ struct EvenWrapper {
 #[test]
 fn field_strategy_can_call_user_fns() {
     run("even wrapper", |e: &EvenWrapper| {
-        testrs_pbt::prop_assert!(e.n % 2 == 0);
-        testrs_pbt::prop_assert!((0..1000).contains(&e.n));
+        gnrs_test_pbt::prop_assert!(e.n % 2 == 0);
+        gnrs_test_pbt::prop_assert!((0..1000).contains(&e.n));
         true
     });
 }
@@ -159,8 +159,8 @@ struct Bag {
 #[test]
 fn vec_of_in_field_attr_works() {
     run("bag", |b: &Bag| {
-        testrs_pbt::prop_assert!(!b.items.is_empty() && b.items.len() < 5);
-        testrs_pbt::prop_assert!(b.items.iter().all(|&n| (0..10).contains(&n)));
+        gnrs_test_pbt::prop_assert!(!b.items.is_empty() && b.items.len() < 5);
+        gnrs_test_pbt::prop_assert!(b.items.iter().all(|&n| (0..10).contains(&n)));
         true
     });
 }
@@ -185,7 +185,7 @@ struct Reading {
 #[test]
 fn strategy_field_with_non_arbitrary_type_compiles() {
     run("reading", |r: &Reading| {
-        testrs_pbt::prop_assert!((-40..40).contains(&r.temp.0));
+        gnrs_test_pbt::prop_assert!((-40..40).contains(&r.temp.0));
         true
     });
 }

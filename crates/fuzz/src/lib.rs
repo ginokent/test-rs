@@ -23,7 +23,7 @@
 //! # 例
 //!
 //! ```no_run
-//! use testrs_fuzz::{fuzz, FuzzConfig};
+//! use gnrs_test_fuzz::{fuzz, FuzzConfig};
 //!
 //! let report = fuzz(FuzzConfig::default(), |data: &[u8]| {
 //!     if data.len() >= 3 && &data[..3] == b"BAD" {
@@ -43,7 +43,7 @@ use std::fs;
 use std::panic::{self, AssertUnwindSafe};
 use std::path::PathBuf;
 
-pub use testrs_core::{Arbitrary, Rng, XorShift64};
+pub use gnrs_test_core::{Arbitrary, Rng, XorShift64};
 
 mod typed;
 pub use typed::{fuzz_typed, TypedFuzzConfig};
@@ -55,7 +55,7 @@ pub struct FuzzConfig {
     pub iterations: usize,
     /// 生成される任意の入力の最大サイズ（バイト単位）です。
     pub max_input_len: usize,
-    /// PRNG の seed です。デフォルトは `TESTRS_FUZZ_SEED` または時計エントロピーです。
+    /// PRNG の seed です。デフォルトは `GNRS_TEST_FUZZ_SEED` または時計エントロピーです。
     pub seed: u64,
     /// 初期 corpus です。これと `corpus_dir` の両方が空である場合は、
     /// 空の入力が追加されます。
@@ -102,7 +102,7 @@ impl Default for FuzzConfig {
 }
 
 fn env_seed() -> u64 {
-    if let Ok(s) = env::var("TESTRS_FUZZ_SEED") {
+    if let Ok(s) = env::var("GNRS_TEST_FUZZ_SEED") {
         if let Ok(n) = s.parse::<u64>() {
             return n;
         }
@@ -640,7 +640,7 @@ mod tests {
 
     #[test]
     fn corpus_and_crash_persistence_roundtrip() {
-        let temp = std::env::temp_dir().join(format!("testrs-fuzz-{}", std::process::id()));
+        let temp = std::env::temp_dir().join(format!("gnrs-test-fuzz-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&temp);
         let corpus_dir = temp.join("corpus");
         let crash_dir = temp.join("crashes");

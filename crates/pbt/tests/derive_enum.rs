@@ -1,6 +1,6 @@
 //! enum および`where`句つきの構造体に対する`#[derive(Arbitrary)]`のテストです。
 
-use testrs_pbt::{forall_with, run, Arbitrary, Config, XorShift64};
+use gnrs_test_pbt::{forall_with, run, Arbitrary, Config, XorShift64};
 
 #[derive(Arbitrary, Debug, Clone, PartialEq)]
 enum SimpleEnum {
@@ -182,12 +182,12 @@ fn enum_with_where_clause_works() {
 
 // --- 属性マクロ + derive enum の組み合わせ -----------------------
 
-#[testrs_pbt::pbt]
+#[gnrs_test_pbt::pbt]
 fn enum_attribute_round_trip(e: SimpleEnum) {
-    testrs_pbt::prop_assert_eq!(e.clone(), e);
+    gnrs_test_pbt::prop_assert_eq!(e.clone(), e);
 }
 
-#[testrs_pbt::pbt(cases = 50)]
+#[gnrs_test_pbt::pbt(cases = 50)]
 fn with_fields_attribute_works(e: WithFields) {
-    testrs_pbt::prop_assert_eq!(e.clone(), e);
+    gnrs_test_pbt::prop_assert_eq!(e.clone(), e);
 }

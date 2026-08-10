@@ -90,7 +90,7 @@ pub fn record_label(label: impl Into<String>) {
 /// `cond` が真のときに、現在のテストケースに対して `label` を記録します。
 ///
 /// ```ignore
-/// use testrs_pbt::{run, classify};
+/// use gnrs_test_pbt::{run, classify};
 ///
 /// run("addition", |&(a, b): &(i32, i32)| {
 ///     classify!(a == 0 || b == 0, "has-zero");

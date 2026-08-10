@@ -1,9 +1,9 @@
 //! データスループット (bytes/s) 計測と sweep のデモです。
 //!
-//! 実行: `cargo run --release --example throughput_sweep -p testrs-bench`
+//! 実行: `cargo run --release --example throughput_sweep -p gnrs-test-bench`
 
+use gnrs_test_bench::{bench_throughput, format_sweep, sweep, BenchResult};
 use std::hint::black_box;
-use testrs_bench::{bench_throughput, format_sweep, sweep, BenchResult};
 
 fn main() {
     // 1 反復が 64 KiB を処理するベンチ。出力に data (bytes/s) 行が自動で出る。

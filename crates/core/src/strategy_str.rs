@@ -13,8 +13,8 @@
 //! # 例
 //!
 //! ```
-//! use testrs_core::strategy::{Strategy, str};
-//! use testrs_core::XorShift64;
+//! use gnrs_test_core::strategy::{Strategy, str};
+//! use gnrs_test_core::XorShift64;
 //!
 //! let s = str::ascii_alphanumeric(1..10);
 //! let mut rng = XorShift64::seed_from_u64(7);

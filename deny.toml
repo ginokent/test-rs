@@ -10,7 +10,7 @@
 #   resolve するコスト、の 2 点から本 deny job に集約した。cargo-deny 0.19+ は
 #   独自実装の advisory parser を持ち CVSS 4.0 を扱える。
 #
-# testrs は SPEC.md の依存方針で「直接依存は std と proc_macro のみ」と
+# gnrs-test は SPEC.md の依存方針で「直接依存は std と proc_macro のみ」と
 # 宣言しているため、現時点では advisories / licenses / bans / sources の
 # どれも実 hit しない。本ファイルは将来意図せず直接依存が追加された瞬間
 # (license 違反 / banned crate / 不審な source / CVE の混入) に即 CI fail
