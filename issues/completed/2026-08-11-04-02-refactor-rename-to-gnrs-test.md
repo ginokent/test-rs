@@ -4,11 +4,11 @@
 - Created: 2026-08-11 04:02 JST
 - Model: Opus 5 (1M context)
 - Branch: `feature/breaking-change-rename-to-gnrs-test`
-- Status: **実装完了・検証済み**。 改名の実装は PR #39 (merge commit `daebcbb`) で main へ着地。
-  GitHub 改名と `git remote set-url` は 2026-08-11 05:4x に完了。 **残件は主要下流 repo の
-  追従のみ**。 本 issue を main へ載せる PR は **#40** (open のまま。 下流追従の完了後に
-  本 issue を `issues/completed/` へ移す commit を積んで merge する。 merge には
-  **`!run ci` が必要** — 下記の ci-publish の項参照)
+- Status: **完了** (2026-08-11 19:0x)。 完了条件すべて充足。 改名の実装は PR #39
+  (merge commit `daebcbb`)、 GitHub 改名と `git remote set-url` は 05:4x、
+  **下流 5 repo の追従は 19:0x に完了**。 本 issue を main へ載せる PR は **#40**
+  (merge には **`!run ci` が必要** — ruleset が `integration_id` で GitHub Actions
+  限定のため `ci-publish` では required check を満たせない。 下記 ci-publish の項参照)
 - 起票経緯: ユーザー指示。 ginokent の自作 crate 群が `gnrs-*` prefix へ順次改名
   されており (`logrs` → `gnrs-log` / `httprs` → `gnrs-http` / `cryptors` →
   `gnrs-crypto` / `audiors` → `gnrs-audio` / `asyncrs` → `gnrs-async` /
@@ -186,9 +186,11 @@
       — `origin` を `ssh://git@github.com/ginokent/gnrs-test.git` に更新し、
       `git ls-remote origin` が exit 0 で `HEAD = daebcbb` を返すことを確認。
       `Cargo.toml:15` が宣言する URL の 404 も解消
-- [ ] 主要下流 repo の選定をユーザーと相談し、 対象 repo に追従 issue を起票する
-      — **進行中**。 ユーザー判断で中核 6 repo を対象としたが、 `gnrs-async` は別作業が
-      進行中のため除外して 5 repo とした。 進捗は下記「### 下流追従の進捗」
+- [x] 主要下流 repo の選定をユーザーと相談し、 対象 repo に追従 issue を起票する
+      — **中核 5 repo すべてで issue 起票・実装・merge まで完了**。 ユーザー判断で
+      中核 6 repo を対象としたが `gnrs-async` は別作業が進行中のため除外した。
+      `gnrs-example` #66 / `gnrs-log` #24 / `gnrs-time` #19 / `gnrs-http` #248 /
+      `gnrs-crypto` #366。 詳細は下記「### 下流追従の進捗」
 
 ## 調査ログ
 
@@ -276,8 +278,8 @@ required by package `gnrs-time-core v0.1.0
 | `gnrs-example` (旧 examplers) | 40 / 13 | **完了** — issue `2026-08-11-04-47` / PR #66 / merge `78c4d1a` |
 | `gnrs-log` | 44 / 16 | **完了** — issue `2026-08-11-05-58` / PR #24 / merge `7538515` |
 | `gnrs-time` (旧 timers) | 53 / 23 | **完了** — issue `2026-08-11-06-28` / PR #19 / merge `b3c512f` |
-| `gnrs-http` (旧 httprs) | 193 / 54 | **置換・検証完了 / merge 待ち** — issue `2026-08-11-13-40` / PR #248 (open)。 7 leg すべて success を投影済み (`h2spec` は 147 tests all passed) だが、 issue の `completed/` 移動 commit を push して HEAD が変わり status が外れた (下記「### ci-publish 運用の構造的な問題」) |
-| `gnrs-crypto` (旧 cryptors) | 245 / 85 | 未着手 |
+| `gnrs-http` (旧 httprs) | 193 / 54 | **完了** — issue `2026-08-11-13-40` / PR #248 / merge `f77fcbb`。 7 leg すべて success (`h2spec` は 147 tests all passed) |
+| `gnrs-crypto` (旧 cryptors) | 245 / 85 | **完了** — issue `2026-08-11-18-24` / PR #366 / merge `6ea9175`。 8 leg すべて success。 **置換 + issue を 1 commit にまとめたため再投影が不要だった** |
 | `gnrs-async` (旧 asyncrs) | 117 / 47 | **除外** (別作業が進行中。 指示文で引き継ぐ) |
 | 残り 9 repo | — | 指示文で引き継ぐ (`quicrs` / `gnrs-gui` / `imagers` / `josers` / `oauthrs` / `cachers` / `gnrs-audio` / `nativers` / `gnrs-ml`) |
 
