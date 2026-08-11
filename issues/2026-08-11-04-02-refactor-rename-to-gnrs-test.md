@@ -276,7 +276,7 @@ required by package `gnrs-time-core v0.1.0
 | `gnrs-example` (旧 examplers) | 40 / 13 | **完了** — issue `2026-08-11-04-47` / PR #66 / merge `78c4d1a` |
 | `gnrs-log` | 44 / 16 | **完了** — issue `2026-08-11-05-58` / PR #24 / merge `7538515` |
 | `gnrs-time` (旧 timers) | 53 / 23 | **完了** — issue `2026-08-11-06-28` / PR #19 / merge `b3c512f` |
-| `gnrs-http` (旧 httprs) | 193 / 54 | 未着手 |
+| `gnrs-http` (旧 httprs) | 193 / 54 | **置換・検証完了 / merge 待ち** — issue `2026-08-11-13-40` / PR #248 (open)。 7 leg すべて success を投影済み (`h2spec` は 147 tests all passed) だが、 issue の `completed/` 移動 commit を push して HEAD が変わり status が外れた (下記「### ci-publish 運用の構造的な問題」) |
 | `gnrs-crypto` (旧 cryptors) | 245 / 85 | 未着手 |
 | `gnrs-async` (旧 asyncrs) | 117 / 47 | **除外** (別作業が進行中。 指示文で引き継ぐ) |
 | 残り 9 repo | — | 指示文で引き継ぐ (`quicrs` / `gnrs-gui` / `imagers` / `josers` / `oauthrs` / `cachers` / `gnrs-audio` / `nativers` / `gnrs-ml`) |
@@ -309,6 +309,31 @@ required by package `gnrs-time-core v0.1.0
   切り分けられた。 本 repo の msrv issue
   (`2026-08-11-04-32-ci-msrv-job-does-not-verify-msrv`) の完了条件「1.82 で実際に通るか
   確認する」も、 同じ手段 (`cargo +1.82`) で検証できる見込み
+
+### ci-publish 運用の構造的な問題 (`gnrs-http` で顕在化)
+
+**commit status は SHA 単位で紐付くため、 投影した後に commit を積むと必ず外れる。**
+`gnrs-http` PR #248 で実際に踏んだ:
+
+1. 置換を commit (`53a59b0`) → push → `ci-publish` で 7 leg を実走し `53a59b0` へ投影
+2. issue の完了条件を tick して `issues/completed/` へ移動する commit (`028d997`) を push
+3. **PR head が `028d997` になり status が 0 件 (`pending`) に**。 `53a59b0` には 7 件の
+   success が残っているが PR head ではないので required checks を満たさない
+
+`gh pr view --json mergeStateStatus` が **`CLEAN` を返していたが実際は merge 不可**
+だった (GitHub 側の反映ラグ)。 **`mergeStateStatus` だけを見て merge 可否を判断しては
+いけない** — `gh api repos/.../commits/<PR head>/status` で status の実体を確認する。
+
+この問題は先行 3 repo (`gnrs-example` / `gnrs-log` / `gnrs-time`) でも起きていたが、
+それらは `ci-publish` が 5 leg で数十秒だったため再投影のコストが小さく気づきにくかった。
+`gnrs-http` は 7 leg (`test` + `h2spec` の実通信を含む) で数分かかるため、
+**`.md` 1 ファイルの変更のために 147 tests の h2spec を再実行する**という無駄が顕在化した。
+
+**対策 (残る `gnrs-crypto` 以降で適用する)**: 置換と「issue の tick + `completed/` 移動」を
+**同一 commit にまとめる**。 そうすれば push 後に `ci-publish` を 1 回走らせるだけで
+済む。 検証結果を issue に書くために置換とは別 commit にしたくなるが、 **検証結果は
+`ci-publish` を走らせる前に書ける** (leg を個別実行して結果を先に知る必要はない —
+むしろ個別実行は `gnrs-http` で踏んだ lock 競合と二重実行の原因になる)。
 
 ## 非スコープ
 
