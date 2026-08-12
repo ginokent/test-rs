@@ -11,7 +11,7 @@ in-process な mutation 駆動 fuzzer。バイト指向のターゲットが pan
 >
 > **fuzzing は PBT の一部ではなく別カテゴリ**である。`gnrs-test-fuzz` は
 > 共有基盤 `gnrs-test-core` のみに依存し、PBT ランナー
-> [`gnrs-test-pbt`](../pbt/README.md) には依存しない。入力を生成して
+> [`gnrs-test-pbt`](../gnrs-test-pbt/README.md) には依存しない。入力を生成して
 > 不変条件を検証したい場合は `gnrs-test-pbt` を使うこと。
 
 ```toml

@@ -6,8 +6,8 @@
 
 > ワークスペース **gnrs-test** を構成する一 crate。リポジトリ全体の俯瞰
 > (カテゴリ分離、crate 構成) は [リポジトリトップの README](../../README.md)
-> を参照。プロパティベーステストは [`gnrs-test-pbt`](../pbt/README.md)、
-> fuzzing は [`gnrs-test-fuzz`](../fuzz/README.md) を使う。
+> を参照。プロパティベーステストは [`gnrs-test-pbt`](../gnrs-test-pbt/README.md)、
+> fuzzing は [`gnrs-test-fuzz`](../gnrs-test-fuzz/README.md) を使う。
 >
 > **benchmarking は PBT / fuzzing とは別カテゴリ**であり、`gnrs-test-bench` は
 > 計測に Rng/Arbitrary を必要としないため **`gnrs-test-core` にも依存せず
