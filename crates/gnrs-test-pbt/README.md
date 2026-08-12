@@ -7,7 +7,7 @@ Rust 向けのプロパティベーステスト (PBT) ランナー。入力を�
 > ワークスペース **gnrs-test** を構成する一 crate。リポジトリ全体の俯瞰
 > (PBT と fuzzing のカテゴリ分離、crate 構成) は
 > [リポジトリトップの README](../../README.md) を参照。fuzzing 利用は
-> 別カテゴリの [`gnrs-test-fuzz`](../fuzz/README.md) を使う。
+> 別カテゴリの [`gnrs-test-fuzz`](../gnrs-test-fuzz/README.md) を使う。
 
 通常は `gnrs-test-pbt` だけで足りる。共有基盤 `gnrs-test-core` と派生マクロ
 `gnrs-test-pbt-derive` の内容をすべて再エクスポートしている。

@@ -66,6 +66,27 @@ gnrs-test の各 crate は std とコンパイラ提供の `proc_macro` クレ�
 現在のワークスペースは 5 crate で構成される。新しいテストカテゴリは、この表に
 兄弟 crate として追加していく。
 
+### crate 命名とディレクトリ命名の規約
+
+- **crate 名は `gnrs-test-` prefix で統一する** (2026-08-11、`testrs` からの改名時に
+  確定)。リポジトリ名 `gnrs-test` と crate 名 prefix を一致させる
+- **crate ディレクトリ名は package 名と一致させる** (2026-08-12 確定)。
+  `crates/gnrs-test-pbt` の package 名は `gnrs-test-pbt`。ディレクトリ名から
+  `Cargo.toml` を開かずに package 名が分かり、`cargo` のエラーメッセージや
+  ビルドログに出る package 名とパスが一致する
+  - **この規約は 2026-08-12 に方針を反転させたもの**。それ以前は「ディレクトリ階層で
+    既に repo が特定されるため prefix を重複させない」(`crates/pbt` = `gnrs-test-pbt`)
+    という規約だった。`gnrs-http` の `SPEC.ja.md` にも同じ旧規約が書かれているため、
+    他 repo へ展開する際はそちらも書き換える
+  - パスに repo 名が 2 回出る (`gnrs-test/crates/gnrs-test-pbt/`) 冗長さは、
+    package 名との一致を優先して受け入れる
+- Rust 識別子は `gnrs_test_*` (例: `gnrs_test_pbt` / `gnrs_test_core`)
+- **adapter crate** (特定ライブラリへの束縛を担う crate) は
+  `{リポジトリ名}-{機能名}-{機能を提供するライブラリ名}` とし、最終セグメントは
+  **ライブラリ名をそのまま**置いて短縮しない (`gnrs-http` の `SPEC.ja.md:74-107` で
+  2026-08-12 確定)。本 repo に adapter crate は現存しないが、将来追加する場合は
+  この規約に従う
+
 | クレート            | カテゴリ      | 依存       | 目的                                                            |
 |---------------------|--------------|------------|-----------------------------------------------------------------|
 | `gnrs-test-core`       | 共有         | std        | `Rng`, `XorShift64`, `Arbitrary` trait, `strategy::*` combinator |

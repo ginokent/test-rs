@@ -11,7 +11,7 @@ description = "依存ゼロ (std のみ) のマイクロベンチマークハー
 # 依存しない独立カテゴリとする。統計関数の PBT 検証のためだけに gnrs-test-pbt を
 # dev-dependency として用いる (配布物には影響しない)。
 [dev-dependencies]
-gnrs-test-pbt = { path = "../pbt", version = "0.1.0" }
+gnrs-test-pbt = { path = "../gnrs-test-pbt", version = "0.1.0" }
 
 [lints]
 workspace = true
