@@ -23,9 +23,9 @@ std とコンパイラ提供の `proc_macro` クレートのみで動作する�
 |----------------------|----------|-------------------------------------------------------------------|--------|
 | `gnrs-test-core`        | 共有     | `Rng`, `XorShift64`, `Arbitrary` trait, `strategy::*` combinator   | —      |
 | `gnrs-test-pbt-derive`  | PBT      | `#[derive(Arbitrary)]` と `#[pbt]` proc-macro                      | —      |
-| `gnrs-test-pbt`         | PBT          | テストランナー、assertion マクロ、regression shrinking        | [crates/pbt/README.md](crates/pbt/README.md) |
-| `gnrs-test-fuzz`        | fuzzing      | in-process mutation 駆動の fuzzer (`fuzz` + `fuzz_typed`)      | [crates/fuzz/README.md](crates/fuzz/README.md) |
-| `gnrs-test-bench`       | benchmarking | std のみ依存のマイクロベンチ (`bench` + `bench_compare`)       | [crates/bench/README.md](crates/bench/README.md) |
+| `gnrs-test-pbt`         | PBT          | テストランナー、assertion マクロ、regression shrinking        | [crates/gnrs-test-pbt/README.md](crates/gnrs-test-pbt/README.md) |
+| `gnrs-test-fuzz`        | fuzzing      | in-process mutation 駆動の fuzzer (`fuzz` + `fuzz_typed`)      | [crates/gnrs-test-fuzz/README.md](crates/gnrs-test-fuzz/README.md) |
+| `gnrs-test-bench`       | benchmarking | std のみ依存のマイクロベンチ (`bench` + `bench_compare`)       | [crates/gnrs-test-bench/README.md](crates/gnrs-test-bench/README.md) |
 
 `gnrs-test-core` と `gnrs-test-pbt-derive` は単体利用を想定しない内部基盤で、
 `gnrs-test-pbt` がその内容をすべて再エクスポートする。利用者が直接依存する
@@ -41,11 +41,11 @@ std とコンパイラ提供の `proc_macro` クレートのみで動作する�
 
 - **プロパティベーステスト** — 入力を生成し不変条件 (ラウンドトリップ、
   仕様一致など) を検証したい → **`gnrs-test-pbt`**。
-  利用ガイド: [crates/pbt/README.md](crates/pbt/README.md)
+  利用ガイド: [crates/gnrs-test-pbt/README.md](crates/gnrs-test-pbt/README.md)
 - **fuzzing** — 任意入力に対するクラッシュ耐性 (panic 安全性) を叩きたい
-  → **`gnrs-test-fuzz`**。利用ガイド: [crates/fuzz/README.md](crates/fuzz/README.md)
+  → **`gnrs-test-fuzz`**。利用ガイド: [crates/gnrs-test-fuzz/README.md](crates/gnrs-test-fuzz/README.md)
 - **benchmarking** — コードの実行時間を測りたい / 2 実装を相対比較したい
-  → **`gnrs-test-bench`**。利用ガイド: [crates/bench/README.md](crates/bench/README.md)
+  → **`gnrs-test-bench`**。利用ガイド: [crates/gnrs-test-bench/README.md](crates/gnrs-test-bench/README.md)
 
 なお `gnrs-test-fuzz` の `fuzz_typed` に独自型を渡す場合、`#[derive(Arbitrary)]`
 の生成コードが PBT facade `gnrs-test-pbt` を参照するため `gnrs-test-pbt` も必要となる。
@@ -67,7 +67,7 @@ gnrs-test-bench = { git = "https://github.com/ginokent/gnrs-test", package = "gn
 
 ## 最小例
 
-プロパティベーステスト ([詳細](crates/pbt/README.md)):
+プロパティベーステスト ([詳細](crates/gnrs-test-pbt/README.md)):
 
 ```rust
 use gnrs_test_pbt::{pbt, prop_assert_eq};
@@ -78,7 +78,7 @@ fn addition_is_commutative(a: i32, b: i32) {
 }
 ```
 
-fuzzing ([詳細](crates/fuzz/README.md)):
+fuzzing ([詳細](crates/gnrs-test-fuzz/README.md)):
 
 ```rust
 use gnrs_test_fuzz::{fuzz, FuzzConfig};
@@ -92,7 +92,7 @@ fn parser_does_not_panic() {
 }
 ```
 
-benchmarking ([詳細](crates/bench/README.md)):
+benchmarking ([詳細](crates/gnrs-test-bench/README.md)):
 
 ```rust
 use gnrs_test_bench::bench_compare;

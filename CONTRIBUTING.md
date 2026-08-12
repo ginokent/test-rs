@@ -6,9 +6,9 @@ gnrs-test への貢献ガイド。**開発手順** (mise install / mise run ci �
 
 エージェント (Claude Code 等) 向けの行動指針は [`CLAUDE.md`](CLAUDE.md)、
 リポジトリ全体の俯瞰は [`README.md`](README.md)、各 crate の利用者向け
-API と機能一覧は [`crates/pbt/README.md`](crates/pbt/README.md) (PBT) /
-[`crates/fuzz/README.md`](crates/fuzz/README.md) (fuzzing) /
-[`crates/bench/README.md`](crates/bench/README.md) (benchmarking) を参照。
+API と機能一覧は [`crates/gnrs-test-pbt/README.md`](crates/gnrs-test-pbt/README.md) (PBT) /
+[`crates/gnrs-test-fuzz/README.md`](crates/gnrs-test-fuzz/README.md) (fuzzing) /
+[`crates/gnrs-test-bench/README.md`](crates/gnrs-test-bench/README.md) (benchmarking) を参照。
 
 ## 開発手順 (mise + scripts)
 
@@ -193,9 +193,9 @@ fine-grained で個別に設定できる。
 | ファイル | 役割 |
 |---|---|
 | [`README.md`](README.md) | リポジトリ全体の俯瞰 (crate 構成、カテゴリ分離、設計原則、各 crate README への導線) |
-| [`crates/pbt/README.md`](crates/pbt/README.md) | PBT (`gnrs-test-pbt`) の利用方法・API パターン集・機能一覧 |
-| [`crates/fuzz/README.md`](crates/fuzz/README.md) | fuzzing (`gnrs-test-fuzz`) の利用方法・API パターン集・機能一覧 |
-| [`crates/bench/README.md`](crates/bench/README.md) | benchmarking (`gnrs-test-bench`) の利用方法・API パターン集・機能一覧 |
+| [`crates/gnrs-test-pbt/README.md`](crates/gnrs-test-pbt/README.md) | PBT (`gnrs-test-pbt`) の利用方法・API パターン集・機能一覧 |
+| [`crates/gnrs-test-fuzz/README.md`](crates/gnrs-test-fuzz/README.md) | fuzzing (`gnrs-test-fuzz`) の利用方法・API パターン集・機能一覧 |
+| [`crates/gnrs-test-bench/README.md`](crates/gnrs-test-bench/README.md) | benchmarking (`gnrs-test-bench`) の利用方法・API パターン集・機能一覧 |
 | [`SPEC.md`](SPEC.md) | プロジェクトの大方針設計 (依存方針 / Toolchain pin / Workspace 構成等) |
 | [`CLAUDE.md`](CLAUDE.md) | エージェント (Claude Code 等) への局所行動指針、リポ固有の落とし穴 |
 | `CONTRIBUTING.md` (本ファイル) | 開発手順 (mise + scripts) と設計判断のトレードオフ (特に ci-publish-status-dangerously の危険性) |
