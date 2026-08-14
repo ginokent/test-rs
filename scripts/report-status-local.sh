@@ -6,6 +6,9 @@
 # 引数:
 #   $1 = context (Branch protection の Required 値と一致させる文字列)
 #   $2 = 結果 (success / failure / cancelled / skipped)
+#   $3 = description (任意、既定は "<state> (local)")。GitHub の Status 表示に出る
+#        短文。doc-only fast path が「検査せず origin/main から継承した」ことを
+#        明示するのに使う。既定値のままだと、投影が実測か継承かを後から区別できない。
 #
 # 前提:
 #   - gh CLI が install + 認証済み (`gh auth login`)
@@ -33,6 +36,7 @@ set -euo pipefail
 
 CONTEXT="$1"
 JOB_STATUS="$2"
+DESCRIPTION_OVERRIDE="${3:-}"
 
 HEAD_SHA=$(git rev-parse HEAD)
 
@@ -73,7 +77,8 @@ case "${JOB_STATUS}" in
 esac
 
 # description は GitHub PR の Status 表示に出る短文 (140 文字以内)。
-DESCRIPTION="${STATE} (local)"
+# 第 3 引数があればそれを使う (doc-only fast path が継承であることを明示するため)。
+DESCRIPTION="${DESCRIPTION_OVERRIDE:-${STATE} (local)}"
 
 # target_url: ローカル実行は GitHub Actions run URL を持たないので、commit
 # ページ URL で代替する。github.com ドメインで固定 (REPO 解決経路に関わらず
