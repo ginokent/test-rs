@@ -63,10 +63,33 @@ doc とみなすのは **`issues/**` / `docs/**` / repo 直下の `*.md` のみ*
   loop 後の孤立コメントなし
 - 本 repo に md/docs/issues を build 入力にする crate は **0 件**
 
+## ⚠️ 本 repo は `ci-publish` では merge できない (既知の制約)
+
+投影は 5 件すべて success になり combined status も success だが、 `gh pr merge` が
+**`the base branch policy prohibits the merge`** で拒否される。
+
+原因は ruleset の `required_status_checks` に **`integration_id: 15368`** (GitHub Actions
+限定) が設定されていること。 commit status (PAT 経由) では満たせない。 **展開対象 20 repo を
+実測し、 この制約を持つのは本 repo のみ**と確認した。
+
+既知の食い違いとして issue
+`2026-08-11-04-28-docs-ci-publish-cannot-satisfy-required-check.md` に記録がある。
+
+- [ ] **ユーザーに ruleset から `integration_id` を外してもらう**
+      (Settings → Rules → Rulesets → 該当 ruleset → 各 status check の source を
+      "Any source" に)。 過去に `gnrs-encoding` / `gnrs-serialize` / `gnrs-compress` /
+      `gnrs-image` の 4 repo で同じ対応を実施済み
+- 代替は PR コメントで GitHub Actions を発火させる経路だが、 Actions のコストが発生する
+
+**本 PR の内容自体は他 19 repo と同一で検証も通っている**。 merge がブロックされているのは
+ruleset の設定のみが理由である。
+
 ## 完了条件
 
 - [x] 判定器と test を導入する
 - [x] `report-status-local.sh` に第 3 引数を追加する
 - [x] `CHECKS` 配列を唯一の出典として fast path と通常経路を回す
 - [x] `CONTRIBUTING.md` / `mise.toml` を更新する
-- [ ] CI 相当の leg が緑になる
+- [x] 投影が 5 件 success になる
+- [ ] **ruleset の `integration_id` を外してもらう** (ユーザー側)
+- [ ] merge する
