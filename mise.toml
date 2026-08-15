@@ -51,6 +51,10 @@ run = "./scripts/deny.sh"
 description = "preflight + fmt / clippy / doc / test / deny を並列実行 (開発 loop 用、check run は投げない)"
 run = "./scripts/ci.sh"
 
+[tasks.doc-only-diff-test]
+description = "scripts/doc-only-diff.sh (投影の doc-only fast path の判定器) の shell test"
+run = "./scripts/doc-only-diff-test.sh"
+
 [tasks.ci-publish-status-dangerously]
 description = "(危険) preflight + push 済み確認 + ci 相当 + 結果を CI と同名 commit status として PR HEAD に投影。CONTRIBUTING.md 参照"
 run = "./scripts/ci-publish-status-dangerously.sh"

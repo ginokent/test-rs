@@ -88,10 +88,15 @@ CI は GitHub Actions のコスト最適化のため PR コメント (`!run ci` 
 2. **`gh` CLI の存在チェック**: 未 install なら exit 1
 3. **push 済み確認**: HEAD commit が remote 上に存在するか確認、未 push なら
    exit 1
-4. **5 task の順次実行**: fmt / clippy / doc / test / deny を呼び、各 task の
+4. **判定器の test**: `scripts/doc-only-diff-test.sh` (下の fast path の判定器の
+   shell test)。落ちたら投影ごと止める
+5. **doc-only 判定**: `git fetch origin main` の上で `scripts/doc-only-diff.sh` を
+   実行し、**doc だけの差分なら検査を走らせずに success を投影して exit 0**
+   (下の「doc-only の fast path」節を参照)
+6. **5 task の順次実行**: fmt / clippy / doc / test / deny を呼び、各 task の
    終了直後に `scripts/report-status-local.sh` で結果を **CI と同名の context**
    で commit status として `gh api repos/.../statuses/{sha}` で PR HEAD に POST
-5. **集約 status**: 1 つでも fail があれば全体 exit 1
+7. **集約 status**: 1 つでも fail があれば全体 exit 1
 
 投影する context 名 (CI workflow の各 job `name:` と完全一致):
 
@@ -102,6 +107,54 @@ CI は GitHub Actions のコスト最適化のため PR コメント (`!run ci` 
 - `cargo deny (license/bans/sources/advisories)`
 
 MSRV (1.82) は CI 専用 job のため投影対象外。
+
+### ⚠️ doc-only の fast path (検査せずに投影する経路)
+
+`origin/main` との差分が **doc だけ**なら、検査を 1 つも走らせずに success を投影して終わる。
+doc は build / test の入力ではないので、その差分は **HEAD の非 doc tree が `origin/main` の
+非 doc tree と 1 bit も違わない**ことを意味し、`origin/main` の検査結果をそのまま継承できる。
+issue file 1 枚の PR に全 test を回すのを避けるのが目的である。
+
+投影される status の description は
+`success (local, doc-only: inherited from origin/main)` になり、**実測ではなく継承**である
+ことが GitHub 上で判別できる。標準出力にも `NO CHECK WAS EXECUTED` を明示する。
+
+**前提**: main へ入る commit が必ず本 task を経ていること。検査を通さず main へ直接 push
+された commit があると「継承元が緑」という前提が崩れる。本 script はこれを検査しない
+(投影は PR HEAD の sha に載るので、merge commit の sha に対して事後に問い合わせる手段が
+無い)。
+
+判定は `scripts/doc-only-diff.sh` に切り出してある。**allowlist 方式**で、doc とみなすのは
+次の 3 つだけである:
+
+- `issues/**`
+- `docs/**`
+- **repo 直下の** `*.md` (`README.md` / `SPEC.md` / `CLAUDE.md` / `CONTRIBUTING.md` 等)
+
+`Cargo.toml` / `Cargo.lock` / `scripts/**` / `mise.toml` / `.github/**` /
+`rust-toolchain.toml` / `deny.toml` / `.claude/**` と、`src/**` や `crates/**` はすべて
+非 doc である (列挙ではなく「allowlist の 3 つ以外」として落ちる)。**階層下の md も非 doc**
+である (`.github/workflows/README.md` など)。差分ゼロも doc-only と同じ扱い (tree が完全
+一致 = 継承の根拠が最も強い)。
+
+**denylist ではなく allowlist にしてある**のは、新種の path が黙って doc 側に落ちるのを
+防ぐためである。判定が緩むと **code の変更が 1 度も検査されないまま merge される**。
+
+exit code は 0 (doc only) / 1 (doc 以外を含む) / 2 (判定不能: 引数不正・ref 解決不可) で、
+**呼び出し側は 0 以外をすべて「全検査」に倒す**。
+
+判定器には次の安全弁がある。実装上の落とし穴 (`--no-renames` / `-z` / 2-dot が必須である
+理由、submodule / symlink の扱い) は `scripts/doc-only-diff.sh` 冒頭のコメントにある。
+
+1. **判定器の test を判定より前に走らせる** — 判定器が壊れて `scripts/**` を doc-only と
+   誤判定した場合、その PR では test が 1 度も走らないまま投影されてしまう
+2. **`git fetch origin main` で base を最新化する** — 古い base だと `main` に入った code
+   修正が差分から消え、判定が緩む方向に倒れる
+3. **`md` が build 入力でないことを毎回検査する** — `include_str!("../docs/x.md")` の形で
+   md が crate に取り込まれると前提が崩れる。取り込みを追加する変更自体は非 doc なので
+   全検査を通るが、その後の md 単独の変更は fast path に乗ってしまう
+
+判定器の shell test は `mise run doc-only-diff-test` で単独実行できる (42 ケース)。
 
 ### なぜ check-runs ではなく commit statuses を使うのか
 
